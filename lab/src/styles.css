@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@import '@adastra/tokens/theme.css';
+@import '@adastra/ui/styles.css';
+
+/* La NUI real es transparente: en el lab el "juego" lo pinta .scene. */
+html,
+body {
+  margin: 0;
+  background: var(--surface-sunken);
+  color: var(--ink);
+  font: 400 16px/24px var(--font-text);
+}

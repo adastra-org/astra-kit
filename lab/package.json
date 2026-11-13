@@ -1,0 +1,12 @@
+{
+  "name": "@adastra/lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Dev-only lab: every component over a fake game background, to tune Glass without the game. Not published.",
+  "dependencies": {
+    "@adastra/nui": "workspace:*",
+    "@adastra/tokens": "workspace:*",
+    "@adastra/ui": "workspace:*"
+  }
+}
