@@ -1,0 +1,3 @@
+/* Entrada de @adastrarp/ui para Tailwind v4: le dice dónde están las clases de los componentes (node_modules no se escanea solo).
+   Uso, después de @import "tailwindcss" y @import "@adastrarp/tokens/theme.css":   @import "@adastrarp/ui/styles.css"; */
+@source "./src";

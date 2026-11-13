@@ -1,0 +1,26 @@
+{
+  "name": "@adastrarp/nui",
+  "version": "0.1.0",
+  "description": "Typed React <-> Lua bridge for FiveM NUI: fetchNui, useNuiEvent, useNuiVisibility, browser mocks and screen blur.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adastra-org/astra-kit.git",
+    "directory": "packages/nui"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "!src/**/*.test.ts",
+    "!src/**/*.test.tsx"
+  ],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

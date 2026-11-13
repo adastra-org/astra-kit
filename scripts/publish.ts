@@ -1,4 +1,4 @@
-// Publica cada paquete del workspace cuya versión actual todavía no está en el registro público (scope @adastra).
+// Publica cada paquete del workspace cuya versión actual todavía no está en el registro público (scope @adastrarp).
 // NO se ejecuta desde acá: el primer release lo corre Faku a mano (`bun run release`, shell con `npm login`, 2FA por
 // terminal). Bun empaqueta el tarball (resuelve `workspace:*`) y npm publica, porque `bun publish` no tiene OIDC.
 import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs'
