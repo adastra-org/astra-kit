@@ -1,27 +1,27 @@
 # astra-kit
 
 UI reutilizable para todas las NUI del servidor FiveM **Ad Astra**. Monorepo Bun; los paquetes publican su código fuente
-(`.ts`, `.tsx`, `.css`), sin paso de build, bajo el scope público `@adastra` en npm.
+(`.ts`, `.tsx`, `.css`), sin paso de build, bajo el scope público `@adastrarp` en npm.
 
-| Paquete                              | Qué es                                                                                                                                     | Versión |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| [`@adastra/tokens`](packages/tokens) | Tokens del DS de Ad Astra para Tailwind v4: Void (oscuro, default) y Dawn, roles, utilidades tipográficas, fuentes self-hosted, skin glass | 0.1.0   |
-| [`@adastra/nui`](packages/nui)       | Bridge tipado React <-> Lua: `fetchNui`, `useNuiEvent`, `useNuiVisibility`, `debugData` / `mockNui`, blur del mundo                        | 0.1.0   |
-| [`@adastra/ui`](packages/ui)         | Primitivas: `Glass`, `Surface`, `Panel`, `Reveal`, `Button`, `IconButton`, `Chip`, `Kbd`, `Field`                                          | 0.1.0   |
-| [`@adastra/config`](packages/config) | Presets de TypeScript y oxlint                                                                                                             | 0.1.0   |
-| [`lab/`](lab)                        | App Vite de desarrollo (no se publica): cada componente sobre un "juego" falso                                                             | —       |
+| Paquete                                | Qué es                                                                                                                                     | Versión |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| [`@adastrarp/tokens`](packages/tokens) | Tokens del DS de Ad Astra para Tailwind v4: Void (oscuro, default) y Dawn, roles, utilidades tipográficas, fuentes self-hosted, skin glass | 0.1.0   |
+| [`@adastrarp/nui`](packages/nui)       | Bridge tipado React <-> Lua: `fetchNui`, `useNuiEvent`, `useNuiVisibility`, `debugData` / `mockNui`, blur del mundo                        | 0.1.0   |
+| [`@adastrarp/ui`](packages/ui)         | Primitivas: `Glass`, `Surface`, `Panel`, `Reveal`, `Button`, `IconButton`, `Chip`, `Kbd`, `Field`                                          | 0.1.0   |
+| [`@adastrarp/config`](packages/config) | Presets de TypeScript y oxlint                                                                                                             | 0.1.0   |
+| [`lab/`](lab)                          | App Vite de desarrollo (no se publica): cada componente sobre un "juego" falso                                                             | —       |
 
 ## Uso en una NUI
 
 ```bash
-bun add @adastra/tokens @adastra/nui @adastra/ui react react-dom motion tailwindcss
+bun add @adastrarp/tokens @adastrarp/nui @adastrarp/ui react react-dom motion tailwindcss
 ```
 
 ```css
 /* src/styles.css */
 @import 'tailwindcss';
-@import '@adastra/tokens/theme.css';
-@import '@adastra/ui/styles.css'; /* le dice a Tailwind dónde están las clases de los componentes */
+@import '@adastrarp/tokens/theme.css';
+@import '@adastrarp/ui/styles.css'; /* le dice a Tailwind dónde están las clases de los componentes */
 
 html,
 body {
@@ -30,8 +30,8 @@ body {
 ```
 
 ```tsx
-import { useNuiVisibility } from '@adastra/nui'
-import { Panel, Button, Reveal } from '@adastra/ui'
+import { useNuiVisibility } from '@adastrarp/nui'
+import { Panel, Button, Reveal } from '@adastrarp/ui'
 
 export function App() {
   const { visible, close } = useNuiVisibility()

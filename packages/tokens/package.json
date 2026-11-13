@@ -1,5 +1,5 @@
 {
-  "name": "@adastra/tokens",
+  "name": "@adastrarp/tokens",
   "version": "0.1.0",
   "description": "Ad Astra design tokens for Tailwind v4: Void (dark, default) and Dawn (light) themes, roles, type utilities, self-hosted fonts and the opt-in glass skin.",
   "type": "module",

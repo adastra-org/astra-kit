@@ -1,5 +1,5 @@
 {
-  "name": "@adastra/config",
+  "name": "@adastrarp/config",
   "version": "0.1.0",
   "description": "TypeScript and oxlint presets for Ad Astra repos.",
   "type": "module",

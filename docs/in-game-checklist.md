@@ -31,5 +31,5 @@ lab en Edge (Chromium de escritorio). Marcar `[x]` solo tras probarlo en el clie
 
 ## Publicación
 
-- [ ] Primer `bun run release` de cada paquete y confirmar el scope `@adastra` en npm (ownership del scope no verificado).
+- [ ] Primer `bun run release` de cada paquete y confirmar el scope `@adastrarp` en npm (org creada por Faku; `@adastra` es de otra cuenta).
 - [ ] Repo `adastra-org/astra-kit` en GitHub (no creado) y Trusted Publishing, si se quiere CI.

@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@import '@adastra/tokens/theme.css';
-@import '@adastra/ui/styles.css';
+@import '@adastrarp/tokens/theme.css';
+@import '@adastrarp/ui/styles.css';
 
 /* La NUI real es transparente: en el lab el "juego" lo pinta .scene. */
 html,

@@ -1,4 +1,4 @@
-/* @adastra/tokens — entrada única. Uso (Tailwind v4):  @import "tailwindcss"; @import "@adastra/tokens/theme.css";
+/* @adastrarp/tokens — entrada única. Uso (Tailwind v4):  @import "tailwindcss"; @import "@adastrarp/tokens/theme.css";
    Trae: valores por tema (tokens.css, generado), fuentes self-hosted (fonts.css), glass (glass.css) y los roles de abajo. */
 @import './tokens.css';
 @import './fonts.css';

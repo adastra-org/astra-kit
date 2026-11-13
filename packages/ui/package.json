@@ -1,7 +1,7 @@
 {
-  "name": "@adastra/ui",
+  "name": "@adastrarp/ui",
   "version": "0.1.0",
-  "description": "Ad Astra NUI primitives (Glass, Surface, Panel, Button, IconButton, Chip, Kbd, Field) on the @adastra/tokens roles.",
+  "description": "Ad Astra NUI primitives (Glass, Surface, Panel, Button, IconButton, Chip, Kbd, Field) on the @adastrarp/tokens roles.",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -23,12 +23,12 @@
     "./styles.css": "./styles.css"
   },
   "peerDependencies": {
-    "@adastra/tokens": "^0.1.0",
+    "@adastrarp/tokens": "^0.1.0",
     "motion": "^14.1.0",
     "react": "^19.0.0",
     "tailwindcss": "^4.1.0"
   },
   "devDependencies": {
-    "@adastra/tokens": "workspace:*"
+    "@adastrarp/tokens": "workspace:*"
   }
 }

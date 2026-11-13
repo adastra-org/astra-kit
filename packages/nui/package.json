@@ -1,5 +1,5 @@
 {
-  "name": "@adastra/nui",
+  "name": "@adastrarp/nui",
   "version": "0.1.0",
   "description": "Typed React <-> Lua bridge for FiveM NUI: fetchNui, useNuiEvent, useNuiVisibility, browser mocks and screen blur.",
   "type": "module",

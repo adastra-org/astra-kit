@@ -9,12 +9,12 @@ los tokens y se activa con `data-theme="light"`.
 
 ## Desviaciones
 
-| Regla                               | Acá                                                       | Por qué                                                                         |
-| ----------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Español rioplatense ("Tocá")        | Español neutro con **tú**                                 | Igual que adastra-site: audiencia LATAM + EU                                    |
-| Hit target 44 px touch              | Controles de 32 px (`sm`) y 40 px (`md`)                  | La NUI se usa con cursor, no con dedo                                           |
-| `@wefaber/tokens` como base         | `@adastra/tokens`, generado desde el `tokens.json` del DS | La marca es otra; los **nombres de roles** de la casa se respetan en lo posible |
-| Opacidad sobre roles solo en scrims | Igual                                                     | Los hovers son capas de superficie (`surface-overlay`), no `ink/8`              |
+| Regla                               | Acá                                                         | Por qué                                                                         |
+| ----------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Español rioplatense ("Tocá")        | Español neutro con **tú**                                   | Igual que adastra-site: audiencia LATAM + EU                                    |
+| Hit target 44 px touch              | Controles de 32 px (`sm`) y 40 px (`md`)                    | La NUI se usa con cursor, no con dedo                                           |
+| `@wefaber/tokens` como base         | `@adastrarp/tokens`, generado desde el `tokens.json` del DS | La marca es otra; los **nombres de roles** de la casa se respetan en lo posible |
+| Opacidad sobre roles solo en scrims | Igual                                                       | Los hovers son capas de superficie (`surface-overlay`), no `ink/8`              |
 
 ## Tokens
 

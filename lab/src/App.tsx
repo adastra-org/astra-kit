@@ -4,7 +4,7 @@ import {
   mockNui,
   useNuiVisibility,
   useScreenBlur,
-} from '@adastra/nui'
+} from '@adastrarp/nui'
 import {
   Button,
   Chip,
@@ -16,7 +16,7 @@ import {
   Reveal,
   Surface,
   type GlassMode,
-} from '@adastra/ui'
+} from '@adastrarp/ui'
 import { Search, Settings, X } from 'lucide-react'
 import { useEffect, useState, type CSSProperties } from 'react'
 

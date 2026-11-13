@@ -1,4 +1,4 @@
-/* Glass de Ad Astra. OPT-IN: nada de esto se aplica salvo que un elemento lleve `.ad-glass` (lo hace <Glass> de @adastra/ui).
+/* Glass de Ad Astra. OPT-IN: nada de esto se aplica salvo que un elemento lleve `.ad-glass` (lo hace <Glass> de @adastrarp/ui).
    Por qué hay dos modos: la NUI de FiveM es CEF transparente compuesto ENCIMA del frame del juego. El juego no está en el DOM,
    así que `backdrop-filter` solo difumina HTML que haya detrás, nunca el mundo.
    - fake (default): sin blur. Tinte alto de la superficie + brillo interno superior + borde en gradiente + ruido. Casi gratis.

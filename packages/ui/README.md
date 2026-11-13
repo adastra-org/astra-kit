@@ -1,12 +1,12 @@
-# @adastra/ui
+# @adastrarp/ui
 
-Primitivas para las NUI de Ad Astra, sobre los roles de `@adastra/tokens`. Peers: `react` ^19, `motion`, `tailwindcss` ^4,
-`@adastra/tokens`. Publica source (`.tsx`).
+Primitivas para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Peers: `react` ^19, `motion`, `tailwindcss` ^4,
+`@adastrarp/tokens`. Publica source (`.tsx`).
 
 ```css
 @import 'tailwindcss';
-@import '@adastra/tokens/theme.css';
-@import '@adastra/ui/styles.css'; /* @source de los componentes: node_modules no se escanea solo */
+@import '@adastrarp/tokens/theme.css';
+@import '@adastrarp/ui/styles.css'; /* @source de los componentes: node_modules no se escanea solo */
 ```
 
 ## API
@@ -31,4 +31,4 @@ Primitivas para las NUI de Ad Astra, sobre los roles de `@adastra/tokens`. Peers
 - Sólido bajo `prefers-reduced-transparency`, `forced-colors`, la prop `solid` o `data-glass="solid"` en `<html>`.
 - Texto sobre glass: solo `ink` e `ink-muted` (AA medido en el peor caso). Detalle: [DESIGN.md](../../DESIGN.md).
 
-Para el blur del mundo en menús modales: `useScreenBlur` de `@adastra/nui` (lo hace Lua).
+Para el blur del mundo en menús modales: `useScreenBlur` de `@adastrarp/nui` (lo hace Lua).

@@ -6,7 +6,7 @@ import { cx } from './cx'
  * - `backdrop`: `backdrop-filter` real. Solo tiene sentido si detrás hay DOM (teléfono con wallpaper, lab).
  *
  * Por qué fake es el default: la NUI es CEF transparente compuesto ENCIMA del frame del juego; el juego no está en el DOM,
- * así que `backdrop-filter` nunca difumina el mundo. Para el blur del mundo, `useScreenBlur` de `@adastra/nui`.
+ * así que `backdrop-filter` nunca difumina el mundo. Para el blur del mundo, `useScreenBlur` de `@adastrarp/nui`.
  */
 export type GlassMode = 'fake' | 'backdrop'
 
@@ -38,7 +38,7 @@ function scaleOf(refraction: boolean | number | undefined): number {
   return Math.min(40, Math.max(0, n))
 }
 
-/** Superficie translúcida opt-in. El texto encima pasa AA en el peor caso (ver `@adastra/tokens` `glass.css`). */
+/** Superficie translúcida opt-in. El texto encima pasa AA en el peor caso (ver `@adastrarp/tokens` `glass.css`). */
 export function Glass({
   mode = 'fake',
   refraction,

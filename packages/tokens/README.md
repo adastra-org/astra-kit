@@ -1,11 +1,11 @@
-# @adastra/tokens
+# @adastrarp/tokens
 
 Tokens del design system de Ad Astra para Tailwind v4. Tema por defecto **Void** (oscuro, `:root`); **Dawn** (claro) bajo
 `[data-theme="light"]`.
 
 ```css
 @import 'tailwindcss';
-@import '@adastra/tokens/theme.css';
+@import '@adastrarp/tokens/theme.css';
 ```
 
 `theme.css` trae todo: valores por tema (`tokens.css`, generado), fuentes self-hosted (`fonts.css`, `@fontsource`), la skin glass
@@ -26,7 +26,7 @@ import {
   blend,
   generateCss,
   type TokenFile,
-} from '@adastra/tokens'
+} from '@adastrarp/tokens'
 ```
 
 - `resolveTheme(file, 'dark', { aliasAsVar? })` — todas las variables de un tema, con alias resueltos.

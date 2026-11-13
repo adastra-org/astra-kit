@@ -1,9 +1,9 @@
-# @adastra/nui
+# @adastrarp/nui
 
 Bridge tipado React <-> Lua para NUI de FiveM. Sin dependencias; peer `react` ^19. Publica source (`.ts`).
 
 ```bash
-bun add @adastra/nui
+bun add @adastrarp/nui
 ```
 
 ## API
