@@ -1,0 +1,14 @@
+{
+  "extends": "./packages/config/tsconfig.react.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["bun", "vite/client"]
+  },
+  "include": [
+    "packages/*/src",
+    "packages/*/scripts",
+    "lab/src",
+    "lab/vite.config.ts",
+    "scripts"
+  ]
+}
