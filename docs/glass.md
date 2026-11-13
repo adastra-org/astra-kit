@@ -4,8 +4,10 @@
 
 La NUI de FiveM es una página CEF transparente compuesta **encima** del frame del juego. El juego se dibuja en otra capa: no
 está en el DOM. `backdrop-filter` solo muestrea lo que el navegador tiene detrás del elemento dentro de la página. Sobre un fondo
-transparente eso es nada, así que el mundo **no** se difumina. (Esto es lo esperado por cómo compone CEF; no se verificó en el
-juego, ver [in-game-checklist.md](in-game-checklist.md).)
+transparente eso es nada, así que el mundo **no** se difumina. El CEF del cliente instalado es `libcef.dll` 144.19.59-cfx-m144-osr
+(Chromium 144, modo **OSR**: renderiza offscreen y el juego lo compone encima), lo que respalda esta premisa. Sigue sin probarse dentro
+del juego, ver [in-game-checklist.md](in-game-checklist.md). Fuente: FileVersion de
+`%LOCALAPPDATA%\FiveM\FiveM.app\bin\libcef.dll`, 2026-11-13.
 
 ## Los tres niveles
 

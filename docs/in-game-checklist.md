@@ -5,9 +5,10 @@ lab en Edge (Chromium de escritorio). Marcar `[x]` solo tras probarlo en el clie
 
 ## Compatibilidad CEF
 
-- [ ] Versión de Chromium del CEF de FiveM del servidor. **Tailwind v4 exige Chrome >= 111** (`@property`, `color-mix()`, `@layer`).
-      Si es menor, la NUI no renderiza bien y hay que fijar Tailwind v3 o actualizar el artefacto de FiveM.
-- [ ] `mask-composite` (borde en gradiente) y CSS nesting funcionan.
+- [x] Versión de Chromium del CEF de FiveM: `libcef.dll` 144.19.59-cfx-m144-osr (Chromium 144.0.7559.264, modo OSR). Fuente: FileVersion de
+      `%LOCALAPPDATA%\FiveM\FiveM.app\bin\libcef.dll` en la máquina de desarrollo, 2026-11-13. Tailwind v4 (Chrome >= 111), `color-mix()`,
+      `@property`, CSS nesting y `mask-composite` están soportados. Riesgo resuelto para el cliente de esta máquina; si el servidor fija otro
+      artefacto de FiveM, repetir la lectura.
 - [ ] Las fuentes (woff2 bundleadas por Vite en `web/dist`) cargan desde `nui://`.
 
 ## Bridge
