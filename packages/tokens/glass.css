@@ -1,0 +1,107 @@
+/* Glass de Ad Astra. OPT-IN: nada de esto se aplica salvo que un elemento lleve `.ad-glass` (lo hace <Glass> de @adastra/ui).
+   Por qué hay dos modos: la NUI de FiveM es CEF transparente compuesto ENCIMA del frame del juego. El juego no está en el DOM,
+   así que `backdrop-filter` solo difumina HTML que haya detrás, nunca el mundo.
+   - fake (default): sin blur. Tinte alto de la superficie + brillo interno superior + borde en gradiente + ruido. Casi gratis.
+   - backdrop: `backdrop-filter` real. Para cuando detrás hay DOM (p. ej. un teléfono con wallpaper).
+   Texto sobre glass pasa AA con cualquier fondo detrás porque el tinte es alto: tokens.test.ts lo mide en el peor caso
+   (negro / blanco detrás). Solo `ink` y `ink-muted` sobre glass; `ink-subtle` no está garantizado. Nunca bajar el tinte.
+   Sólido bajo prefers-reduced-transparency, forced-colors, `[data-solid]` en el elemento o `data-glass="solid"` en <html>. */
+
+:root {
+  --glass-tint: 80%;
+  --glass-hi: rgb(255 229 229 / 0.14);
+  --glass-blur: blur(16px) saturate(1.35);
+  --glass-edge: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ink) 38%, transparent),
+    color-mix(in srgb, var(--ink) 6%, transparent) 38%,
+    color-mix(in srgb, var(--accent) 26%, transparent) 100%
+  );
+  --glass-sheen: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink) 7%, transparent),
+    transparent 46%
+  );
+  --glass-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 0.09'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+/* Dawn (claro): tinte más alto, porque `ink-muted` claro necesita más superficie bajo el texto. */
+[data-theme='light'] {
+  --glass-tint: 92%;
+  --glass-hi: rgb(255 255 255 / 0.7);
+}
+
+@layer components {
+  .ad-glass {
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg, 16px);
+    color: var(--ink);
+    background-color: color-mix(
+      in srgb,
+      var(--surface-raised) var(--glass-tint),
+      transparent
+    );
+    background-image: var(--glass-sheen), var(--glass-noise);
+    background-size:
+      100% 100%,
+      160px 160px;
+    box-shadow:
+      var(--shadow-raised),
+      inset 0 1px 0 var(--glass-hi);
+  }
+  /* Borde en gradiente: pseudo-elemento enmascarado a 1 px. Estático, sin costo en reposo. */
+  .ad-glass::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--glass-edge);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+  /* backdrop: difumina lo que haya DETRÁS en el DOM. `--glass-refract` (opcional) antepone un filtro SVG. */
+  .ad-glass[data-mode='backdrop'] {
+    -webkit-backdrop-filter: var(--glass-refract,) var(--glass-blur);
+    backdrop-filter: var(--glass-refract,) var(--glass-blur);
+  }
+
+  /* Sólido: transparencia reducida (preferencia del SO) y forced-colors. */
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    .ad-glass {
+      background-color: var(--surface-raised);
+      background-image: none;
+      border-color: var(--border);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .ad-glass::before {
+      display: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .ad-glass {
+      background-color: Canvas;
+      border-color: CanvasText;
+    }
+  }
+  /* Sólido manual: la NUI casi nunca recibe la preferencia del SO, así que el servidor puede exponer un ajuste propio. */
+  .ad-glass[data-solid],
+  :root[data-glass='solid'] .ad-glass {
+    background-color: var(--surface-raised);
+    background-image: none;
+    border-color: var(--border);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .ad-glass[data-solid]::before,
+  :root[data-glass='solid'] .ad-glass::before {
+    display: none;
+  }
+}
