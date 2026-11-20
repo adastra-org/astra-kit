@@ -26,6 +26,7 @@
       "name": "@adastrarp/lab",
       "version": "0.1.0",
       "dependencies": {
+        "@adastrarp/goo": "workspace:*",
         "@adastrarp/nui": "workspace:*",
         "@adastrarp/tokens": "workspace:*",
         "@adastrarp/ui": "workspace:*",
@@ -34,6 +35,13 @@
     "packages/config": {
       "name": "@adastrarp/config",
       "version": "0.1.0",
+    },
+    "packages/goo": {
+      "name": "@adastrarp/goo",
+      "version": "0.1.0",
+      "peerDependencies": {
+        "react": "^19.0.0",
+      },
     },
     "packages/nui": {
       "name": "@adastrarp/nui",
@@ -71,6 +79,8 @@
   },
   "packages": {
     "@adastrarp/config": ["@adastrarp/config@workspace:packages/config"],
+
+    "@adastrarp/goo": ["@adastrarp/goo@workspace:packages/goo"],
 
     "@adastrarp/lab": ["@adastrarp/lab@workspace:lab"],
 

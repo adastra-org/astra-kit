@@ -1,0 +1,27 @@
+{
+  "name": "@adastrarp/goo",
+  "version": "0.1.0",
+  "description": "Goo (metaball) motion engine for Ad Astra pills: critically damped springs, liquid necking and bridges, rAF only while moving.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adastra-org/astra-kit.git",
+    "directory": "packages/goo"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "!src/**/*.test.ts",
+    "!src/**/*.test.tsx"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./core": "./src/core.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

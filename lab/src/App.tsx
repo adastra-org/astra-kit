@@ -126,7 +126,12 @@ export function App() {
   return (
     <div className="grid min-h-screen grid-cols-[18rem_1fr]">
       <aside className="flex flex-col gap-5 border-r border-border bg-surface p-4">
-        <h1 className="text-h4">astra-kit lab</h1>
+        <div className="flex items-baseline justify-between">
+          <h1 className="text-h4">astra-kit lab</h1>
+          <a href="?page=hud" className="text-caption text-ink-muted underline">
+            HUD
+          </a>
+        </div>
         <Group label="Fondo (el “juego”)">
           {(Object.keys(SCENES) as SceneId[]).map((id) => (
             <Chip key={id} selected={scene === id} onClick={() => setScene(id)}>

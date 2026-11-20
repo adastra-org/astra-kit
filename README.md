@@ -8,6 +8,7 @@ UI reutilizable para todas las NUI del servidor FiveM **Ad Astra**. Monorepo Bun
 | [`@adastrarp/tokens`](packages/tokens) | Tokens del DS de Ad Astra para Tailwind v4: Void (oscuro, default) y Dawn, roles, utilidades tipográficas, fuentes self-hosted, skin glass | 0.1.0   |
 | [`@adastrarp/nui`](packages/nui)       | Bridge tipado React <-> Lua: `fetchNui`, `useNuiEvent`, `useNuiVisibility`, `debugData` / `mockNui`, blur del mundo                        | 0.1.0   |
 | [`@adastrarp/ui`](packages/ui)         | Primitivas: `Glass`, `Surface`, `Panel`, `Reveal`, `Button`, `IconButton`, `Chip`, `Kbd`, `Field`                                          | 0.1.0   |
+| [`@adastrarp/goo`](packages/goo)       | Motor goo (metaballs) basado en física para el sistema de pills: `Goo`, `GooBlob`, `GooEngine`, springs, anticipación y arcos              | 0.1.0   |
 | [`@adastrarp/config`](packages/config) | Presets de TypeScript y oxlint                                                                                                             | 0.1.0   |
 | [`lab/`](lab)                          | App Vite de desarrollo (no se publica): cada componente sobre un "juego" falso                                                             | —       |
 
