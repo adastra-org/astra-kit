@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Dev-only lab: every component over a fake game background, to tune Glass without the game. Not published.",
   "dependencies": {
+    "@adastrarp/goo": "workspace:*",
     "@adastrarp/nui": "workspace:*",
     "@adastrarp/tokens": "workspace:*",
     "@adastrarp/ui": "workspace:*"

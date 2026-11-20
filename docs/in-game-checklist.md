@@ -33,3 +33,11 @@ lab en Edge (Chromium de escritorio). Marcar `[x]` solo tras probarlo en el clie
 
 - [ ] Primer `bun run release` de cada paquete y confirmar el scope `@adastrarp` en npm (org creada por Faku; `@adastra` es de otra cuenta).
 - [ ] Repo `adastra-org/astra-kit` en GitHub (no creado) y Trusted Publishing, si se quiere CI.
+
+## Goo (HUD de pills)
+
+- [ ] Costo en CEF: fila de estado + velocímetro animando a la vez, sin caída de FPS del juego (`resmon` / perfil de CEF).
+- [ ] En reposo no queda rAF corriendo (DevTools de la NUI: Performance, 5 s quietos).
+- [ ] Minimapa real: la fila de estado y el velocímetro alternativo se anclan al borde del minimapa con cualquier safezone y
+      relación de aspecto (16:9, 21:9).
+- [ ] Legibilidad del anillo y del número sobre escenas claras (mediodía) y oscuras.
