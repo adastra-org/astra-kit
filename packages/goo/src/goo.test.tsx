@@ -324,6 +324,10 @@ describe('<Goo>', () => {
       ),
     )
     expect(host.querySelectorAll('svg path')).toHaveLength(1)
+    expect(
+      host.querySelector<HTMLElement>('[data-adastra="Goo"]')!.style
+        .fontVariantNumeric,
+    ).toBe('tabular-nums')
     expect(host.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true')
     expect(host.querySelector('svg path')!.getAttribute('d')).toContain(
       'A20 20',

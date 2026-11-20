@@ -89,7 +89,12 @@ export function Goo({
       <div
         data-adastra="Goo"
         className={className}
-        style={{ position: 'relative', ...style }}
+        // Números tabulares en todo el HUD: los valores cambian y no deben mover lo que los rodea.
+        style={{
+          position: 'relative',
+          fontVariantNumeric: 'tabular-nums',
+          ...style,
+        }}
       >
         <svg
           aria-hidden

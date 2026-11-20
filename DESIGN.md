@@ -83,7 +83,8 @@ Los principios de animación se implementan como física:
 Cada indicador es una cápsula (radio = alto / 2). En reposo es una cabeza (círculo con anillo); cuando su valor cambia se
 estira para mostrar etiqueta + número y vuelve a cabeza a los 2.5 s. Pills del mismo grupo se unen como líquido (metaballs)
 cuando se acercan; una alerta nace desde la pill que la origina. El color dice el estado (`accent` / `warning` < 25 % /
-`danger` < 10 %), siempre con ícono. Prototipo: `bun run lab` → `?page=hud`.
+`danger` < 10 %), siempre con ícono. **Números tabulares siempre** (`tabular-nums`; Unbounded y Geologica traen
+`tnum`): un valor que cambia no mueve lo que lo rodea. `<Goo>` lo aplica a todo su contenido y `text-data` lo trae. Prototipo: `bun run lab` → `?page=hud`.
 
 ## Componentes
 
