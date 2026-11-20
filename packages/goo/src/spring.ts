@@ -1,12 +1,14 @@
 /**
- * Spring de un valor. `damping` es la razón de amortiguamiento: 1 = crítico (sin rebote, el default de la casa), < 1
- * rebota. Integración semi-implícita con subpasos fijos de 1/240 s: estable con cualquier frame rate.
+ * Spring físico de un valor: F = -k·x - c·v, a = F / m. Mismo modelo y presets que el DS personal de Faku
+ * (`window.Faku.presets`). Integración semi-implícita con subpasos fijos de 1/240 s: estable con cualquier frame rate.
  */
 export interface SpringConfig {
-  /** Rigidez (k). 260 ≈ 240 ms hasta reposo con damping 1. */
+  /** Rigidez (k). */
   stiffness: number
-  /** Razón de amortiguamiento (ζ). */
+  /** Coeficiente de amortiguamiento (c). Crítico = 2·√(k·m); menos rebota. */
   damping: number
+  /** Masa (m). Más masa = más inercia: tarda más y se siente pesado. */
+  mass: number
 }
 
 export interface Spring {
@@ -15,7 +17,34 @@ export interface Spring {
   target: number
 }
 
-export const SPRING_DEFAULT: SpringConfig = { stiffness: 260, damping: 1 }
+/** Presets del DS Faku. */
+export const PRESETS = {
+  /** Deriva de orbes y blobs. */
+  float: { stiffness: 26, damping: 5, mass: 1.4 },
+  /** Entradas de elementos (una alerta que nace). */
+  gentle: { stiffness: 120, damping: 14, mass: 1 },
+  /** Respuesta a arrastre, rebote visible. */
+  wobbly: { stiffness: 180, damping: 9, mass: 1 },
+  /** Estados de UI: una pill que se estira, hover, press. */
+  snappy: { stiffness: 320, damping: 24, mass: 1 },
+  /** Paneles: se sienten pesados. */
+  heavy: { stiffness: 90, damping: 18, mass: 3 },
+} as const satisfies Record<string, SpringConfig>
+
+export type SpringPreset = keyof typeof PRESETS
+
+export const SPRING_DEFAULT: SpringConfig = PRESETS.snappy
+
+/** Amortiguamiento crítico para k y m: llega sin pasarse. */
+export function critical(stiffness: number, mass = 1): number {
+  return 2 * Math.sqrt(stiffness * mass)
+}
+
+/** Razón de amortiguamiento ζ (1 = crítico, < 1 rebota). */
+export function dampingRatio(cfg: SpringConfig): number {
+  return cfg.damping / critical(cfg.stiffness, cfg.mass)
+}
+
 const STEP = 1 / 240
 const REST = 0.01
 
@@ -25,12 +54,12 @@ export function spring(value: number, target = value): Spring {
 
 /** Avanza `dt` segundos. Devuelve true si quedó en reposo (y lo fija exacto en el objetivo). */
 export function stepSpring(s: Spring, dt: number, cfg: SpringConfig): boolean {
-  const k = cfg.stiffness
-  const c = 2 * cfg.damping * Math.sqrt(k)
+  const { stiffness: k, damping: c } = cfg
+  const m = cfg.mass > 0 ? cfg.mass : 1
   let t = dt
   while (t > 0) {
     const h = Math.min(STEP, t)
-    s.velocity += (-k * (s.value - s.target) - c * s.velocity) * h
+    s.velocity += ((-k * (s.value - s.target) - c * s.velocity) / m) * h
     s.value += s.velocity * h
     t -= h
   }

@@ -100,7 +100,10 @@ export function StatContent({
   )
 }
 
-/** Cabeza con un número grande (velocímetro). */
+/**
+ * Cabeza con un número grande (velocímetro). El cuerpo se calcula para el peor caso (3 cifras en Unbounded, que es
+ * ancha): ~0.27 del diámetro, así queda aire de sobra contra el anillo y el tamaño no salta entre 99 y 100.
+ */
 export function ValueContent({
   size,
   value,
@@ -115,10 +118,12 @@ export function ValueContent({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <Ring size={size} width={4} value={ring} tone="accent" />
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
         <span
           className="text-ink tabular-nums"
-          style={{ font: '700 44px/48px var(--font-heading)' }}
+          style={{
+            font: `700 ${Math.round(size * 0.27)}px/1 var(--font-heading)`,
+          }}
         >
           {Math.round(value)}
         </span>

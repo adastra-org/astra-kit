@@ -52,12 +52,23 @@ Reglas:
 
 ## Movimiento
 
-120 ms hover/press, 180 ms panel (`Reveal`), 240 ms reflow. Ease-out de marca, sin rebotes, entradas de 8 px desde abajo.
-Animación solo en cambio de estado; con `prefers-reduced-motion` queda solo la opacidad. Press `scale(0.98)` por CSS, apagado con reduced motion.
+120 ms hover/press, 180 ms panel (`Reveal`), 240 ms reflow. Entradas de 8 px desde abajo. Animación solo en cambio de
+estado; con `prefers-reduced-motion` queda solo la opacidad. Press `scale(0.98)` por CSS, apagado con reduced motion.
 
 **Basado en física.** Lo que se mueve en el espacio (pills, HUD, valores) usa springs, no curvas ni keyframes a mano:
-`@adastrarp/goo` para formas y `useSpring` de motion para valores. Spring crítico (damping 1, rigidez 260 ≈ 240 ms): llega
-sin pasarse, así "sin rebotes" sigue valiendo. Los principios de animación se implementan como física:
+`@adastrarp/goo` para formas y `useSpring` de motion para valores. El modelo y los presets son los del DS personal de
+Faku (`k` rigidez, `c` amortiguamiento, `m` masa): los presets rebotan un poco a propósito; `crítico` (c = 2·√(k·m)) es
+la opción sin rebote.
+
+| Preset   | k / c / m    | Para                                            |
+| -------- | ------------ | ----------------------------------------------- |
+| `snappy` | 320 / 24 / 1 | Estados de UI: una pill que se estira (default) |
+| `gentle` | 120 / 14 / 1 | Entradas: una alerta que nace                   |
+| `heavy`  | 90 / 18 / 3  | Paneles                                         |
+| `wobbly` | 180 / 9 / 1  | Respuesta a arrastre                            |
+| `float`  | 26 / 5 / 1.4 | Deriva (no en HUD: nada en loop)                |
+
+Los principios de animación se implementan como física:
 
 | Principio                    | Cómo                                                                  | Dónde                                      |
 | ---------------------------- | --------------------------------------------------------------------- | ------------------------------------------ |
@@ -65,7 +76,7 @@ sin pasarse, así "sin rebotes" sigue valiendo. Los principios de animación se 
 | Arcos                        | Impulso perpendicular al recorrido, comba hacia arriba (`arc`)        | Lo que nace o viaja (alertas); no en filas |
 | Squash & stretch             | El cuerpo de la pill se afina con la velocidad del ancho (`neck`)     | Pills que se estiran                       |
 | Follow-through / overlapping | Vecinas con menos rigidez: llegan tarde y el goo las une en el camino | Filas de pills                             |
-| Slow in / slow out, timing   | Los da el spring; el timing se ajusta con la rigidez                  | Todo                                       |
+| Slow in / slow out, timing   | Los da el spring; el timing se ajusta con rigidez y masa              | Todo                                       |
 
 ## HUD: todo es una pill
 

@@ -19,11 +19,15 @@ export {
   type Circle,
 } from './geometry'
 export {
+  PRESETS,
   SPRING_DEFAULT,
   atRest,
+  critical,
+  dampingRatio,
   spring,
   stepSpring,
   type Spring,
   type SpringConfig,
+  type SpringPreset,
 } from './spring'
 export { row } from './layout'

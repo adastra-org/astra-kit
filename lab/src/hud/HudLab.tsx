@@ -2,8 +2,11 @@ import {
   GOO_DEFAULT,
   Goo,
   GooBlob,
+  PRESETS,
+  critical,
   row,
   type GooSettings,
+  type SpringPreset,
 } from '@adastrarp/goo'
 import { Button, Chip } from '@adastrarp/ui'
 import {
@@ -32,6 +35,17 @@ const MINIMAP = { x: M, y: H - M - HEAD - GAP - 184, w: 288, h: 184 }
 const ROW_Y = H - M - HEAD
 
 type Screen = 'pie' | 'auto' | 'avion'
+type Region = { x: number; y: number; w: number; h: number }
+
+// Zoom al HUD (16:9): lo que se ve en un teléfono sin achicar todo el escenario.
+const FOCUS: Record<Screen, Region> = {
+  pie: { x: 0, y: H - 360, w: 640, h: 360 },
+  auto: { x: W / 2 - 320, y: H - 360, w: 640, h: 360 },
+  avion: { x: 0, y: H - 360, w: 640, h: 360 },
+}
+const FULL: Region = { x: 0, y: 0, w: W, h: H }
+const narrow = () =>
+  typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches
 type StatId = 'vida' | 'armadura' | 'hambre' | 'sed' | 'estamina'
 
 const STATS: { id: StatId; label: string; icon: React.ReactNode }[] = [
@@ -72,19 +86,27 @@ const SLIDERS: {
 }[] = [
   {
     key: 'stiffness',
-    label: 'Rigidez',
-    min: 60,
+    label: 'Rigidez (k)',
+    min: 20,
     max: 600,
     step: 10,
     hint: 'Timing: más rígido, más rápido.',
   },
   {
     key: 'damping',
-    label: 'Amortiguamiento',
-    min: 0.3,
-    max: 1.5,
-    step: 0.05,
-    hint: '1 = crítico, sin rebote (DS). < 1 rebota.',
+    label: 'Amortiguamiento (c)',
+    min: 2,
+    max: 60,
+    step: 1,
+    hint: 'Crítico = 2·√(k·m): llega sin pasarse. Menos, rebota.',
+  },
+  {
+    key: 'mass',
+    label: 'Masa (m)',
+    min: 0.5,
+    max: 4,
+    step: 0.1,
+    hint: 'Inercia: más masa, más pesado y lento.',
   },
   {
     key: 'anticipation',
@@ -120,6 +142,14 @@ const SLIDERS: {
   },
 ]
 
+const PRESET_LIST: { id: SpringPreset; hint: string }[] = [
+  { id: 'snappy', hint: 'Estados de UI (default)' },
+  { id: 'gentle', hint: 'Entradas' },
+  { id: 'heavy', hint: 'Paneles' },
+  { id: 'wobbly', hint: 'Arrastre' },
+  { id: 'float', hint: 'Deriva' },
+]
+
 const query = new URLSearchParams(location.search)
 
 export function HudLab() {
@@ -130,12 +160,14 @@ export function HudLab() {
   const [physics, setPhysics] = useState<Omit<GooSettings, 'instant'>>({
     stiffness: GOO_DEFAULT.stiffness,
     damping: GOO_DEFAULT.damping,
+    mass: GOO_DEFAULT.mass,
     anticipation: GOO_DEFAULT.anticipation,
     arc: GOO_DEFAULT.arc,
     neck: GOO_DEFAULT.neck,
     reach: GOO_DEFAULT.reach,
   })
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [zoom, setZoom] = useState(narrow)
   const [stats, setStats] = useState<Record<StatId, number>>({
     vida: 72,
     armadura: 90,
@@ -181,8 +213,8 @@ export function HudLab() {
     setAlerts((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]))
 
   return (
-    <div className="grid h-screen grid-cols-[20rem_1fr]">
-      <aside className="flex flex-col gap-5 overflow-y-auto border-r border-border bg-surface p-4">
+    <div className="grid h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] md:grid-cols-[20rem_minmax(0,1fr)] md:grid-rows-1">
+      <aside className="order-2 flex min-h-0 flex-col gap-5 overflow-y-auto border-t border-border bg-surface p-4 md:order-1 md:border-t-0 md:border-r">
         <div className="flex items-baseline justify-between">
           <h1 className="text-h4">HUD · pills + goo</h1>
           <a href="?" className="text-caption text-ink-muted underline">
@@ -199,6 +231,14 @@ export function HudLab() {
               {s.label}
             </Chip>
           ))}
+        </Group>
+        <Group label="Vista">
+          <Chip selected={zoom} onClick={() => setZoom(true)}>
+            Zoom al HUD
+          </Chip>
+          <Chip selected={!zoom} onClick={() => setZoom(false)}>
+            Pantalla completa
+          </Chip>
         </Group>
         <Group label="Eventos">
           <Button size="sm" onClick={() => change('vida', -18)}>
@@ -251,7 +291,39 @@ export function HudLab() {
             </label>
           </>
         )}
-        <Group label="Física (principios de animación)">
+        <Group label="Física (presets del DS Faku)">
+          {PRESET_LIST.map((p) => {
+            const cfg = PRESETS[p.id]
+            const on =
+              physics.stiffness === cfg.stiffness &&
+              physics.damping === cfg.damping &&
+              physics.mass === cfg.mass
+            return (
+              <Chip
+                key={p.id}
+                selected={on}
+                title={p.hint}
+                onClick={() => setPhysics((s) => ({ ...s, ...cfg }))}
+              >
+                {p.id}
+              </Chip>
+            )
+          })}
+          <Chip
+            selected={
+              physics.damping ===
+              Math.round(critical(physics.stiffness, physics.mass))
+            }
+            title="Sin rebote"
+            onClick={() =>
+              setPhysics((s) => ({
+                ...s,
+                damping: Math.round(critical(s.stiffness, s.mass)),
+              }))
+            }
+          >
+            crítico
+          </Chip>
           <div className="flex w-full flex-col gap-3">
             {SLIDERS.map((s) => (
               <label key={s.key} className="flex flex-col gap-1 text-label">
@@ -289,7 +361,7 @@ export function HudLab() {
         </Group>
       </aside>
 
-      <Stage>
+      <Stage region={zoom ? FOCUS[screen] : FULL}>
         <Minimap />
         <Goo
           {...physics}
@@ -387,6 +459,7 @@ function AutoCluster({ speed, alerts }: { speed: number; alerts: AlertId[] }) {
             w={HEAD}
             h={HEAD}
             from={{ x: cx - 4, y: cy - 4 }}
+            spring="gentle"
             label={ALERTS[id].label}
           >
             <AlertContent icon={ALERTS[id].icon} tone={ALERTS[id].tone} />
@@ -436,6 +509,7 @@ function PlaneCluster({ speed, gear }: { speed: number; gear: boolean }) {
           w={HEAD}
           h={HEAD}
           from={{ x: x + size / 2, y: y + size / 2 }}
+          spring="gentle"
           label="Tren de aterrizaje abajo"
         >
           <AlertContent icon={<PlaneLanding size={18} />} tone="accent" />
@@ -474,35 +548,44 @@ function Minimap() {
   )
 }
 
-/** Escenario 1920 × 1080 escalado para entrar en el espacio disponible. Fondo = "juego" falso. */
-function Stage({ children }: { children: React.ReactNode }) {
+/**
+ * Escenario 1920 × 1080 escalado para entrar en el espacio disponible; `region` recorta (zoom al HUD en teléfono).
+ * Fondo = "juego" falso.
+ */
+function Stage({
+  region,
+  children,
+}: {
+  region: Region
+  children: React.ReactNode
+}) {
   const box = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0.5)
   useLayoutEffect(() => {
     const el = box.current
     if (!el) return
     const fit = () =>
-      setScale(Math.min(el.clientWidth / W, el.clientHeight / H))
+      setScale(Math.min(el.clientWidth / region.w, el.clientHeight / region.h))
     fit()
     const ro = new ResizeObserver(fit)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
+  }, [region.w, region.h])
   return (
     <main
       ref={box}
-      className="relative grid place-items-center overflow-hidden bg-surface-sunken"
+      className="relative order-1 grid h-[min(56.25vw,55dvh)] place-items-center overflow-hidden bg-surface-sunken md:order-2 md:h-auto"
     >
       <div
         className="relative shrink-0 overflow-hidden"
-        style={{ width: W * scale, height: H * scale }}
+        style={{ width: region.w * scale, height: region.h * scale }}
       >
         <div
           className="absolute left-0 top-0 origin-top-left"
           style={{
             width: W,
             height: H,
-            transform: `scale(${scale})`,
+            transform: `scale(${scale}) translate(${-region.x}px, ${-region.y}px)`,
             background:
               'radial-gradient(60% 50% at 20% 30%, #ff9a3c55 0%, transparent 60%), radial-gradient(50% 60% at 80% 70%, #2f7bff55 0%, transparent 60%), linear-gradient(160deg, #1b2236, #241a3a 60%, #0b0d14)',
           }}

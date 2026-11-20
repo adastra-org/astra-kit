@@ -49,20 +49,31 @@ export function Goo({
 }: GooProps) {
   const [engine] = useState(() => new GooEngine())
   const path = useRef<SVGPathElement>(null)
-  const { stiffness, damping, neck, reach, instant, anticipation, arc } =
+  const { stiffness, damping, mass, neck, reach, instant, anticipation, arc } =
     settings
 
   useLayoutEffect(() => {
     engine.configure({
       stiffness,
       damping,
+      mass,
       neck,
       reach,
       anticipation,
       arc,
       instant: instant ?? reducedMotion(),
     })
-  }, [engine, stiffness, damping, neck, reach, instant, anticipation, arc])
+  }, [
+    engine,
+    stiffness,
+    damping,
+    mass,
+    neck,
+    reach,
+    instant,
+    anticipation,
+    arc,
+  ])
 
   useLayoutEffect(
     () =>
@@ -118,6 +129,7 @@ export function GooBlob({
   w,
   h,
   group,
+  spring,
   stiffness,
   from,
   anticipation,
@@ -129,6 +141,8 @@ export function GooBlob({
   const engine = useGooEngine()
   const el = useRef<HTMLDivElement>(null)
   const fromRef = useRef(from)
+  // Un objeto literal cambia de identidad en cada render: el efecto depende de su contenido.
+  const springKey = typeof spring === 'object' ? JSON.stringify(spring) : spring
 
   useLayoutEffect(() => {
     engine.upsert({
@@ -138,12 +152,14 @@ export function GooBlob({
       w,
       h,
       group,
+      spring: typeof spring === 'object' ? { ...spring } : spring,
       stiffness,
       anticipation,
       arc,
       from: fromRef.current,
     })
-  }, [engine, id, x, y, w, h, group, stiffness, anticipation, arc])
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- `spring` entra por `springKey`
+  }, [engine, id, x, y, w, h, group, springKey, stiffness, anticipation, arc])
 
   useLayoutEffect(() => () => engine.remove(id), [engine, id])
 

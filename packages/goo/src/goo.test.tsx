@@ -5,8 +5,11 @@ import {
   GooEngine,
   Goo,
   GooBlob,
+  PRESETS,
   bridgePath,
   circlePath,
+  critical,
+  dampingRatio,
   metaballPath,
   pillEnds,
   pillPath,
@@ -102,7 +105,11 @@ describe('spring', () => {
     let max = 0
     let rested = false
     for (let i = 0; i < 120 && !rested; i++) {
-      rested = stepSpring(s, 1 / 60, { stiffness: 260, damping: 1 })
+      rested = stepSpring(s, 1 / 60, {
+        stiffness: 260,
+        damping: critical(260),
+        mass: 1,
+      })
       max = Math.max(max, s.value)
     }
     expect(rested).toBe(true)
@@ -114,10 +121,33 @@ describe('spring', () => {
     const s = spring(0, 100)
     let max = 0
     for (let i = 0; i < 60; i++) {
-      stepSpring(s, 1 / 60, { stiffness: 260, damping: 0.3 })
+      stepSpring(s, 1 / 60, {
+        stiffness: 260,
+        damping: 0.3 * critical(260),
+        mass: 1,
+      })
       max = Math.max(max, s.value)
     }
     expect(max).toBeGreaterThan(110)
+  })
+
+  test('presets del DS Faku: snappy rebota poco, wobbly se nota, heavy tarda más', () => {
+    const peak = (cfg: (typeof PRESETS)[keyof typeof PRESETS]) => {
+      const s = spring(0, 100)
+      let max = 0
+      let frames = 0
+      while (!stepSpring(s, 1 / 60, cfg) && frames < 600) {
+        max = Math.max(max, s.value)
+        frames++
+      }
+      return { max, frames }
+    }
+    expect(dampingRatio(PRESETS.snappy)).toBeCloseTo(0.67, 2)
+    expect(peak(PRESETS.snappy).max).toBeLessThan(108)
+    expect(peak(PRESETS.wobbly).max).toBeGreaterThan(130)
+    expect(peak(PRESETS.heavy).frames).toBeGreaterThan(
+      peak(PRESETS.snappy).frames,
+    )
   })
 })
 
@@ -181,7 +211,14 @@ describe('GooEngine', () => {
       instant: true,
     })
     e.upsert({ id: 'a', x: 0, y: 0, w: 40, h: 40 })
-    e.configure({ instant: false, anticipation: 1, arc: 0 })
+    e.configure({
+      instant: false,
+      anticipation: 1,
+      arc: 0,
+      stiffness: 260,
+      damping: critical(260),
+      mass: 1,
+    })
     e.upsert({ id: 'a', x: 0, y: 0, w: 140, h: 40 })
     let min = 40
     let max = 40
@@ -213,6 +250,21 @@ describe('GooEngine', () => {
     }
     expect(minY).toBeLessThan(85) // ~13 % de 200 px de comba
     expect(e.frame.blobs.get('a')!.y).toBe(100)
+  })
+
+  test('spring por pill: un preset propio pisa al del motor', () => {
+    const run = (spring?: 'heavy') => {
+      const c = clock()
+      const e = new GooEngine({ schedule: c.schedule, cancel: c.cancel })
+      e.upsert({ id: 'a', x: 0, y: 0, w: 40, h: 40, spring })
+      let frames = 0
+      while (c.pending && frames < 1000) {
+        c.frame()
+        frames++
+      }
+      return frames
+    }
+    expect(run('heavy')).toBeGreaterThan(run())
   })
 
   test('remove: se encoge y desaparece del frame', () => {

@@ -1,11 +1,13 @@
 import { bridgePath, pillPath, type Box } from './geometry'
 import {
+  PRESETS,
   SPRING_DEFAULT,
   atRest,
   spring,
   stepSpring,
   type Spring,
   type SpringConfig,
+  type SpringPreset,
 } from './spring'
 
 /** Lo que se le pide a una pill. Coordenadas en px del contenedor. */
@@ -13,7 +15,9 @@ export interface BlobTarget extends Box {
   id: string
   /** Pills del mismo grupo se conectan con puentes goo cuando se acercan. Sin grupo: nunca. */
   group?: string
-  /** Rigidez propia (p. ej. vecinas más lentas para que el líquido se note). */
+  /** Spring propio: un preset del DS (`gentle` para lo que nace) o valores sueltos. Default: el del `<Goo>`. */
+  spring?: SpringPreset | Partial<SpringConfig>
+  /** Rigidez propia, encima de `spring` (p. ej. vecinas más lentas para que el líquido se note). */
   stiffness?: number
   /** Punto desde el que nace la pill al aparecer (p. ej. el centro de otra). Default: su propio centro. */
   from?: { x: number; y: number }
@@ -44,7 +48,7 @@ export interface GooSettings extends SpringConfig {
   /** Sin animación: salta al objetivo (reduced motion). */
   instant: boolean
   /**
-   * Anticipación: impulso inicial en contra del cambio. Con damping 1 retrocede y llega sin pasarse.
+   * Anticipación: impulso inicial en contra del cambio: retrocede antes de ir. Con spring crítico,
    * 0.5 ≈ 7 % del recorrido hacia atrás; 1 ≈ 21 %.
    */
   anticipation: number
@@ -73,6 +77,7 @@ export const GOO_DEFAULT: GooSettings = {
 interface Blob {
   id: string
   group?: string
+  spring?: SpringPreset | Partial<SpringConfig>
   stiffness?: number
   x: Spring
   y: Spring
@@ -85,6 +90,7 @@ const KEYS = ['x', 'y', 'w', 'h'] as const
 const SETTINGS = [
   'stiffness',
   'damping',
+  'mass',
   'neck',
   'reach',
   'instant',
@@ -161,6 +167,7 @@ export class GooEngine {
       this.#blobs.set(t.id, b)
     }
     b.group = t.group
+    b.spring = t.spring
     b.stiffness = t.stiffness
     b.removing = false
     const moved = b.x.target !== t.x || b.y.target !== t.y
@@ -194,9 +201,19 @@ export class GooEngine {
     this.#last = null
   }
 
+  #config(b: Blob): SpringConfig {
+    const own = typeof b.spring === 'string' ? PRESETS[b.spring] : b.spring
+    const { stiffness, damping, mass } = this.#opts
+    return {
+      stiffness: b.stiffness ?? own?.stiffness ?? stiffness,
+      damping: own?.damping ?? damping,
+      mass: own?.mass ?? mass,
+    }
+  }
+
   /**
    * Física de los principios de animación: la anticipación es un impulso en contra del cambio y el arco uno
-   * perpendicular al desplazamiento. Ambos escalan con ω = √k, así se ven igual con cualquier rigidez.
+   * perpendicular al desplazamiento. Ambos escalan con ω = √(k/m), así se ven igual con cualquier spring.
    */
   #impulse(
     b: Blob,
@@ -206,7 +223,8 @@ export class GooEngine {
     resized: boolean,
   ) {
     if (this.#opts.instant) return
-    const omega = Math.sqrt(b.stiffness ?? this.#opts.stiffness)
+    const { stiffness, mass } = this.#config(b)
+    const omega = Math.sqrt(stiffness / (mass > 0 ? mass : 1))
     const a = anticipation ?? this.#opts.anticipation
     const keys = [
       ...(moved ? (['x', 'y'] as const) : []),
@@ -250,10 +268,7 @@ export class GooEngine {
     this.#last = t
     let resting = true
     for (const b of this.#blobs.values()) {
-      const cfg: SpringConfig = {
-        stiffness: b.stiffness ?? this.#opts.stiffness,
-        damping: this.#opts.damping,
-      }
+      const cfg = this.#config(b)
       const w0 = b.w.value
       for (const k of KEYS) if (!stepSpring(b[k], dt, cfg)) resting = false
       this.#velW.set(b.id, dt > 0 ? (b.w.value - w0) / dt : 0)
