@@ -3,14 +3,18 @@ import {
   normalizeProgress,
   usePrimitiveEvent,
   useScreenBlur,
+  type AlertData,
   type ContextMenuData,
+  type InputDialogData,
   type ProgressNormalized,
   type ProgressStatus,
   type TextUiData,
 } from '@adastrarp/nui'
 import { useCallback, useRef, useState } from 'react'
 import { Reveal } from '../Reveal'
+import { Alert } from './Alert'
 import { ContextMenu } from './ContextMenu'
+import { InputDialog } from './InputDialog'
 import { Notifications } from './Notifications'
 import { Progress } from './Progress'
 import type { IconMap } from './shared'
@@ -68,16 +72,56 @@ export function NuiPrimitives({ icons }: NuiPrimitivesProps = {}) {
   // Menú de contexto: modal, con blur del mundo. Elegir o cerrar avisa a Lua; Lua decide si abre otro.
   const [menu, setMenu] = useState<ContextMenuData | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  useScreenBlur(menuOpen)
   usePrimitiveEvent('context:open', (d) => {
     setMenu(d)
     setMenuOpen(true)
   })
   usePrimitiveEvent('context:close', () => setMenuOpen(false))
 
+  // Diálogos modales: input y alerta. Cada uno responde a Lua una vez y se cierra.
+  const [input, setInput] = useState<InputDialogData | null>(null)
+  const [inputOpen, setInputOpen] = useState(false)
+  usePrimitiveEvent('input:open', (d) => {
+    setInput(d)
+    setInputOpen(true)
+  })
+  usePrimitiveEvent('input:close', () => setInputOpen(false))
+  const [alert, setAlert] = useState<AlertData | null>(null)
+  const [alertOpen, setAlertOpen] = useState(false)
+  usePrimitiveEvent('alert:open', (d) => {
+    setAlert(d)
+    setAlertOpen(true)
+  })
+  usePrimitiveEvent('alert:close', () => setAlertOpen(false))
+  useScreenBlur(menuOpen || inputOpen || alertOpen)
+
   return (
     <>
       <Notifications items={toasts.items} />
+      <Reveal open={inputOpen} className="fixed inset-0 z-50">
+        {input && (
+          <InputDialog
+            key={input.id}
+            data={input}
+            onResult={(values) => {
+              setInputOpen(false)
+              void callbackPrimitive('input:result', { id: input.id, values })
+            }}
+          />
+        )}
+      </Reveal>
+      <Reveal open={alertOpen} className="fixed inset-0 z-50">
+        {alert && (
+          <Alert
+            key={alert.id}
+            data={alert}
+            onResult={(result) => {
+              setAlertOpen(false)
+              void callbackPrimitive('alert:result', { id: alert.id, result })
+            }}
+          />
+        )}
+      </Reveal>
       <Reveal
         open={menuOpen}
         className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2"

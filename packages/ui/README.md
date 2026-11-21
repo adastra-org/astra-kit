@@ -53,6 +53,8 @@ import { NuiPrimitives } from '@adastrarp/ui'
 | Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel` |
 | Text UI      | `<TextUi data />`                               | `textui:show`, `textui:hide`        |
 | Menú         | `<ContextMenu data onSelect onClose />`         | `context:open`, `context:close`     |
+| Input        | `<InputDialog data onResult />`                 | `input:open`, `input:close`         |
+| Alerta       | `<Alert data onResult />`                       | `alert:open`, `alert:close`         |
 
 ### Notificación
 
@@ -82,3 +84,10 @@ anterior.
 la raíz cierra. Los deshabilitados se saltan y quedan `aria-disabled`. Una fila con descripción o metadata pasa de pill a
 `rounded-lg`. `onSelect` recibe el `path` de ids; en el host, elegir o cerrar avisa a Lua (`context:select` / `context:close`)
 y el menú usa `useScreenBlur`.
+
+### Input dialog y alerta
+
+Ambos usan `Dialog`: scrim (`bg-surface-sunken/60`), `aria-modal`, foco atrapado, Escape cancela y el foco vuelve al elemento
+previo. No cierran con click afuera. `InputDialog` (`role="dialog"`) valida `required` / `min` / `max` al enviar, muestra el
+error junto al campo y enfoca el primero con error; los opcionales se marcan "(opcional)". `Alert` (`role="alertdialog"`)
+enfoca "Cancelar" cuando es `danger`; con `cancel: false` es un aviso de un botón. En el host ambos usan `useScreenBlur`.

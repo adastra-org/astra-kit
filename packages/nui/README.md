@@ -70,8 +70,12 @@ SendNUIMessage({ action = 'notify:show', data = { type = 'success', title = 'Ban
 | `textui:hide` | sin datos |
 | `context:open` | `{ id, title, items: { id, label, description?, icon?, disabled?, metadata?, items? }[] }` |
 | `context:close` | sin datos |
+| `input:open` | `{ id, title, fields: { id, type: 'text' \| 'number' \| 'select' \| 'checkbox' \| 'date', label, description?, required?, placeholder?, default?, options?, min?, max?, step? }[], confirmLabel?, cancelLabel? }` |
+| `input:close` | sin datos |
+| `alert:open` | `{ id, title, content?, confirmLabel?, cancelLabel?, cancel? = true, danger? }` |
+| `alert:close` | sin datos |
 
-Callbacks (UI -> Lua): `context:select` `{ id, path }` (ids de la raíz al ítem), `context:close` `{ id }`, `progress:end` `{ id, status: 'completed' \| 'cancelled' }`. Una barra nueva cancela la anterior
+Callbacks (UI -> Lua): `input:result` `{ id, values \| null }` (number: `number \| null`, checkbox: `boolean`, select/date vacíos: `null`, text: `string`; `null` si se cancela), `alert:result` `{ id, result: 'confirm' \| 'cancel' }`, `context:select` `{ id, path }` (ids de la raíz al ítem), `context:close` `{ id }`, `progress:end` `{ id, status: 'completed' \| 'cancelled' }`. Una barra nueva cancela la anterior
 (Lua recibe `cancelled` con el id viejo).
 
 **Foco y teclado.** `SetNuiFocus` es del lado Lua. La barra y el skill check leen el teclado de la página: si la NUI no

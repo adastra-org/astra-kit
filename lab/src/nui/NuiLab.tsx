@@ -256,6 +256,100 @@ export function NuiLab() {
           </Button>
         </Group>
 
+        <Group label="Input dialog">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('input:open', {
+                id: 'registro',
+                title: 'Registro de vehículo',
+                fields: [
+                  {
+                    id: 'plate',
+                    type: 'text',
+                    label: 'Patente',
+                    required: true,
+                    description: 'Tres letras y tres números.',
+                    placeholder: 'ABC123',
+                  },
+                  {
+                    id: 'seats',
+                    type: 'number',
+                    label: 'Asientos',
+                    min: 1,
+                    max: 8,
+                    default: 4,
+                  },
+                  {
+                    id: 'kind',
+                    type: 'select',
+                    label: 'Tipo',
+                    required: true,
+                    options: [
+                      { value: 'auto', label: 'Auto' },
+                      { value: 'moto', label: 'Moto' },
+                    ],
+                  },
+                  { id: 'date', type: 'date', label: 'Fecha de compra' },
+                  { id: 'insured', type: 'checkbox', label: 'Asegurado' },
+                ],
+              })
+            }
+          >
+            Formulario
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => emitPrimitive('input:close', undefined)}
+          >
+            Cerrar desde Lua
+          </Button>
+        </Group>
+
+        <Group label="Alerta">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('alert:open', {
+                id: 'salir',
+                title: 'Salir del servidor',
+                content: 'Se guardará tu progreso antes de desconectarte.',
+                confirmLabel: 'Salir',
+              })
+            }
+          >
+            Confirmar
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('alert:open', {
+                id: 'borrar',
+                title: 'Borrar personaje',
+                content: 'Esta acción no se puede deshacer.',
+                confirmLabel: 'Borrar',
+                danger: true,
+              })
+            }
+          >
+            Destructiva
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('alert:open', {
+                id: 'aviso',
+                title: 'Mantenimiento',
+                content: 'El servidor se reinicia en 5 minutos.',
+                cancel: false,
+              })
+            }
+          >
+            Solo aviso
+          </Button>
+        </Group>
+
         <Surface level="sunken" className="p-3">
           <p className="mb-1 text-eyebrow">Eventos a Lua</p>
           <ul className="text-code break-all text-ink-muted">
