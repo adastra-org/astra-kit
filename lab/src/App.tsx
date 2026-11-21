@@ -19,6 +19,7 @@ import {
 } from '@adastrarp/ui'
 import { Search, Settings, X } from 'lucide-react'
 import { useEffect, useState, type CSSProperties } from 'react'
+import { LabNav } from './LabNav'
 
 // "Juego" falso: lo que la NUI real tendría detrás. En el juego NO hay DOM ahí, solo el frame del motor.
 const SCENES = {
@@ -124,13 +125,11 @@ export function App() {
   const vars = { '--glass-tint': `${tint}%` } as CSSProperties
 
   return (
-    <div className="grid min-h-screen grid-cols-[18rem_1fr]">
-      <aside className="flex flex-col gap-5 border-r border-border bg-surface p-4">
-        <div className="flex items-baseline justify-between">
+    <div className="grid min-h-dvh grid-cols-[minmax(0,1fr)] md:grid-cols-[18rem_minmax(0,1fr)]">
+      <aside className="flex flex-col gap-5 border-b border-border bg-surface p-4 md:border-r md:border-b-0">
+        <div className="flex flex-col gap-1">
           <h1 className="text-h4">astra-kit lab</h1>
-          <a href="?page=hud" className="text-caption text-ink-muted underline">
-            HUD
-          </a>
+          <LabNav current="components" />
         </div>
         <Group label="Fondo (el “juego”)">
           {(Object.keys(SCENES) as SceneId[]).map((id) => (
@@ -191,7 +190,7 @@ export function App() {
       </aside>
 
       <main
-        className="relative grid place-items-center overflow-hidden p-8"
+        className="relative grid min-h-[60dvh] place-items-center overflow-hidden p-4 md:p-8"
         style={{ background: SCENES[scene].css, ...vars }}
       >
         {/* Franjas contrastadas: dan algo que difuminar/refractar cuando hay DOM detrás. */}
@@ -211,7 +210,7 @@ export function App() {
           ))}
         </div>
 
-        <Reveal open={visible} className="relative w-[26rem]">
+        <Reveal open={visible} className="relative w-full max-w-[26rem]">
           <Panel
             title="Inventario"
             glass={glass}

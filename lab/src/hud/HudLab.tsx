@@ -23,6 +23,7 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AlertContent, StatContent, TextContent, ValueContent } from './parts'
 import type { Tone } from './tone'
+import { LabNav } from '../LabNav'
 
 // Escenario a 1920 × 1080, escalado para entrar en la ventana. Medidas sobre la grilla del DS (4/8, márgenes de 48).
 const W = 1920
@@ -215,11 +216,9 @@ export function HudLab() {
   return (
     <div className="grid h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] md:grid-cols-[20rem_minmax(0,1fr)] md:grid-rows-1">
       <aside className="order-2 flex min-h-0 flex-col gap-5 overflow-y-auto border-t border-border bg-surface p-4 md:order-1 md:border-t-0 md:border-r">
-        <div className="flex items-baseline justify-between">
+        <div className="flex flex-col gap-1">
           <h1 className="text-h4">HUD · pills + goo</h1>
-          <a href="?" className="text-caption text-ink-muted underline">
-            Componentes
-          </a>
+          <LabNav current="hud" />
         </div>
         <Group label="Pantalla">
           {SCREENS.map((s) => (

@@ -13,6 +13,7 @@ import {
   SkillCheckGroup,
   TextUiGroup,
 } from './groups'
+import { LabNav } from '../LabNav'
 
 // Escenario: un "juego" falso detrás. En el juego real no hay DOM detrás de la NUI.
 const SCENES = {
@@ -60,11 +61,9 @@ export function NuiLab() {
   return (
     <div className="grid h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,55fr)_minmax(0,45fr)] md:grid-cols-[22rem_minmax(0,1fr)] md:grid-rows-1">
       <aside className="order-2 flex min-h-0 flex-col gap-6 overflow-y-auto border-t border-border bg-surface p-4 md:order-1 md:border-t-0 md:border-r">
-        <div className="flex items-baseline justify-between">
+        <div className="flex flex-col gap-1">
           <h1 className="text-h4">Primitivas NUI</h1>
-          <a href="?" className="text-caption text-ink-muted underline">
-            Componentes
-          </a>
+          <LabNav current="nui" />
         </div>
         <Group label="Fondo">
           {(Object.keys(SCENES) as Scene[]).map((s) => (
