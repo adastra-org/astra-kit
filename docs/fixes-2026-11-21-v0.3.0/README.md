@@ -33,7 +33,7 @@ Comentarios de Faku en el lab publicado (Astra Kit Lab y Astra HUD Pills). Se ti
 
 ## HUD (hilos del 2026-11-20 que otra sesión respondió como hechos sin aplicarlos)
 
-- [ ] Alertas: armado en 3 fases (orbe, después ícono, después borde). Hoy el borde se pinta mientras el orbe nace.
-- [ ] Orbes de stats centrados con el minimapa, no pegados a la izquierda.
-- [ ] Íconos de alerta nacen del centro del velocímetro (Auto y Avión) y vuelven ahí al irse.
-- [ ] Avión: al expandirse una pill se ocultan los íconos cerrados de la derecha en vez de empujar la fila contra la altitud.
+- [x] Alertas: armado en 3 fases (orbe, después ícono a los 300 ms, después borde a los 500 ms). Captura a 200 ms: orbe vacío, sin borde.
+- [x] Orbes de stats centrados con el minimapa, no pegados a la izquierda.
+- [~] Íconos de alerta nacen del centro del velocímetro (Auto y Avión) y vuelven ahí al irse. `from` sin offset y `remove(id, to)` en el motor con test; falta verlo en movimiento.
+- [x] Avión: al expandirse una pill se ocultan los íconos cerrados de la derecha en vez de empujar la fila contra la altitud.

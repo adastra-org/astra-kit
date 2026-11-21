@@ -282,6 +282,23 @@ describe('GooEngine', () => {
     expect(e.frame.d).toBe('')
   })
 
+  test('remove con `to`: vuelve hacia ese punto mientras se encoge', () => {
+    const c = clock()
+    const e = new GooEngine({ schedule: c.schedule, cancel: c.cancel })
+    e.configure({ instant: true })
+    e.upsert({ id: 'a', x: 0, y: 0, w: 40, h: 40 })
+    e.configure({ instant: false })
+    e.remove('a', { x: 200, y: 100 })
+    let last = e.frame.blobs.get('a')!
+    for (let i = 0; i < 120 && c.pending; i++) {
+      c.frame()
+      last = e.frame.blobs.get('a') ?? last
+    }
+    expect(e.frame.blobs.has('a')).toBe(false)
+    expect(last.x).toBeGreaterThan(150)
+    expect(last.y).toBeGreaterThan(70)
+  })
+
   test('instant: salta al objetivo sin programar frames', () => {
     const c = clock()
     const e = new GooEngine({

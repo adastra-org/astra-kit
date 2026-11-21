@@ -1,5 +1,12 @@
-import { motion, useSpring, useTransform, type MotionValue } from 'motion/react'
-import { useEffect, type ReactNode } from 'react'
+import {
+  motion,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from 'motion/react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { PRESETS } from '@adastrarp/goo'
 import { toneOf, type Tone } from './tone'
 
 const stroke = {
@@ -19,15 +26,18 @@ export function Ring({
   width,
   value,
   tone,
+  initial,
 }: {
   size: number
   width: number
   value: number
   tone: Tone
+  /** Valor con el que arranca el spring (p. ej. 0 para que el borde se dibuje al aparecer). Default: `value`. */
+  initial?: number
 }) {
   const r = (size - width) / 2
   const c = 2 * Math.PI * r
-  const v = useSpring(value, { stiffness: 220, damping: 26 })
+  const v = useSpring(initial ?? value, { stiffness: 220, damping: 26 })
   useEffect(() => v.set(value), [v, value])
   const offset = useTransformOffset(v, c)
   return (
@@ -63,6 +73,10 @@ export function Ring({
 function useTransformOffset(v: MotionValue<number>, c: number) {
   return useTransform(v, (x) => c * (1 - Math.min(1, Math.max(0, x))))
 }
+
+// Armado de una alerta en 3 fases: el orbe nace (goo), después el ícono y por último el borde se dibuja.
+const ICON_AT = 300
+const RING_AT = 500
 
 /** Contenido de una pill de estado: cabeza (anillo + ícono) y cuerpo (etiqueta + valor). Ancho fijo; el goo lo revela. */
 export function StatContent({
@@ -133,7 +147,7 @@ export function ValueContent({
   )
 }
 
-/** Orbe de alerta: solo ícono, color de estado. */
+/** Orbe de alerta: solo ícono, color de estado. Se arma en 3 fases (orbe, ícono, borde) para no verse roto al nacer. */
 export function AlertContent({
   icon,
   tone,
@@ -143,13 +157,39 @@ export function AlertContent({
   tone: Tone
   size?: number
 }) {
+  const reduce = useReducedMotion()
+  const [ring, setRing] = useState(Boolean(reduce))
+  useEffect(() => {
+    if (reduce) return
+    const t = window.setTimeout(() => setRing(true), RING_AT)
+    return () => clearTimeout(t)
+  }, [reduce])
   return (
     <div
       className={`relative grid place-items-center ${text[tone]}`}
       style={{ width: size, height: size }}
     >
-      <Ring size={size} width={3} value={1} tone={tone} />
-      {icon}
+      {ring && (
+        <Ring
+          size={size}
+          width={3}
+          value={1}
+          initial={reduce ? 1 : 0}
+          tone={tone}
+        />
+      )}
+      <motion.span
+        className="grid place-items-center"
+        initial={reduce ? false : { scale: 0.4, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{
+          type: 'spring',
+          ...PRESETS.gentle,
+          delay: ICON_AT / 1000,
+        }}
+      >
+        {icon}
+      </motion.span>
     </div>
   )
 }

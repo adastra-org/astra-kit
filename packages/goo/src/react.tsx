@@ -121,11 +121,13 @@ export type GooBlobProps = BlobTarget & {
   children?: ReactNode
   /** Etiqueta accesible si el contenido es solo visual. */
   label?: string
+  /** Punto al que vuelve al desmontarse (p. ej. el mismo `from`). Default: su propio centro. */
+  to?: { x: number; y: number }
 }
 
 /**
  * Una pill dentro de `<Goo>`. Declara su caja objetivo; el motor la anima y el contenido sigue a la forma por ref
- * (transform + tamaño), recortado. Al desmontarse, la forma se encoge hasta su centro.
+ * (transform + tamaño), recortado. Al desmontarse, la forma se encoge hasta su centro (o hasta `to`).
  */
 export function GooBlob({
   id,
@@ -137,6 +139,7 @@ export function GooBlob({
   spring,
   stiffness,
   from,
+  to,
   anticipation,
   arc,
   className,
@@ -146,6 +149,10 @@ export function GooBlob({
   const engine = useGooEngine()
   const el = useRef<HTMLDivElement>(null)
   const fromRef = useRef(from)
+  const toRef = useRef(to)
+  useLayoutEffect(() => {
+    toRef.current = to
+  })
   // Un objeto literal cambia de identidad en cada render: el efecto depende de su contenido.
   const springKey = typeof spring === 'object' ? JSON.stringify(spring) : spring
 
@@ -166,7 +173,7 @@ export function GooBlob({
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- `spring` entra por `springKey`
   }, [engine, id, x, y, w, h, group, springKey, stiffness, anticipation, arc])
 
-  useLayoutEffect(() => () => engine.remove(id), [engine, id])
+  useLayoutEffect(() => () => engine.remove(id, toRef.current), [engine, id])
 
   useLayoutEffect(
     () =>

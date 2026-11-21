@@ -34,6 +34,8 @@ const HEAD = 40
 const PILL = 136
 const MINIMAP = { x: M, y: H - M - HEAD - GAP - 184, w: 288, h: 184 }
 const ROW_Y = H - M - HEAD
+// Margen mínimo de la fila de stats al borde izquierdo cuando, centrada en el minimapa, no entra.
+const EDGE = 24
 
 type Screen = 'pie' | 'auto' | 'avion'
 type Region = { x: number; y: number; w: number; h: number }
@@ -367,7 +369,12 @@ export function HudLab() {
           instant={query.get('motion') === 'off' || undefined}
           style={{ width: W, height: H }}
         >
-          <StatusRow stats={stats} open={open} stiffness={physics.stiffness} />
+          <StatusRow
+            stats={stats}
+            open={open}
+            stiffness={physics.stiffness}
+            screen={screen}
+          />
           {screen === 'auto' && <AutoCluster speed={speed} alerts={alerts} />}
           {screen === 'avion' && <PlaneCluster speed={speed} gear={gear} />}
         </Goo>
@@ -376,19 +383,40 @@ export function HudLab() {
   )
 }
 
-/** Fila de estado bajo el minimapa. Las vecinas a la derecha tienen más inercia: follow-through y el goo se nota. */
+/**
+ * Fila de estado bajo el minimapa, centrada con él; si no entra, se corre hasta `EDGE` del borde. Las vecinas a la derecha
+ * tienen más inercia: follow-through y el goo se nota.
+ *
+ * Avión: a la derecha del minimapa está el velocímetro. Si una pill expandida empuja la fila más allá del minimapa, se
+ * ocultan las cabezas cerradas desde la derecha (estamina primero) hasta que entre; vuelven al cerrarse la pill.
+ */
 function StatusRow({
   stats,
   open,
   stiffness,
+  screen,
 }: {
   stats: Record<StatId, number>
   open: Set<StatId>
   stiffness: number
+  screen: Screen
 }) {
-  const widths = STATS.map((s) => (open.has(s.id) ? PILL : HEAD))
-  const xs = row(widths, GAP, M)
-  return STATS.map((s, i) => (
+  const span = (list: typeof STATS) =>
+    list.reduce((t, s) => t + (open.has(s.id) ? PILL : HEAD), 0) +
+    GAP * Math.max(0, list.length - 1)
+  const start = (list: typeof STATS) =>
+    Math.max(EDGE, MINIMAP.x + (MINIMAP.w - span(list)) / 2)
+  const limit = screen === 'avion' ? MINIMAP.x + MINIMAP.w : W
+  const shown = [...STATS]
+  while (start(shown) + span(shown) > limit) {
+    let i = shown.length - 1
+    while (i >= 0 && open.has(shown[i]!.id)) i--
+    if (i < 0) break
+    shown.splice(i, 1)
+  }
+  const widths = shown.map((s) => (open.has(s.id) ? PILL : HEAD))
+  const xs = row(widths, GAP, start(shown))
+  return shown.map((s, i) => (
     <GooBlob
       key={s.id}
       id={s.id}
@@ -457,7 +485,8 @@ function AutoCluster({ speed, alerts }: { speed: number; alerts: AlertId[] }) {
             y={y}
             w={HEAD}
             h={HEAD}
-            from={{ x: cx - 4, y: cy - 4 }}
+            from={{ x: cx, y: cy }}
+            to={{ x: cx, y: cy }}
             spring="gentle"
             label={ALERTS[id].label}
           >
@@ -475,6 +504,8 @@ function PlaneCluster({ speed, gear }: { speed: number; gear: boolean }) {
   const x = MINIMAP.x + MINIMAP.w + GAP
   const y = H - M - HEAD - GAP - size
   const side = x + size + GAP
+  // Las alertas nacen del centro del velocímetro y vuelven ahí.
+  const center = { x: x + size / 2, y: y + size / 2 }
   return (
     <>
       <GooBlob
@@ -495,6 +526,9 @@ function PlaneCluster({ speed, gear }: { speed: number; gear: boolean }) {
         y={y + 8}
         w={HEAD}
         h={HEAD}
+        from={center}
+        to={center}
+        spring="gentle"
         label="Combustible bajo"
       >
         <AlertContent icon={<Fuel size={18} />} tone="warning" />
@@ -507,7 +541,8 @@ function PlaneCluster({ speed, gear }: { speed: number; gear: boolean }) {
           y={y + size - HEAD - 8}
           w={HEAD}
           h={HEAD}
-          from={{ x: x + size / 2, y: y + size / 2 }}
+          from={center}
+          to={center}
           spring="gentle"
           label="Tren de aterrizaje abajo"
         >
