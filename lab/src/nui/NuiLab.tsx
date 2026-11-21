@@ -1,7 +1,7 @@
 import { mockNui } from '@adastrarp/nui'
 import { Chip, NuiPrimitives, Surface } from '@adastrarp/ui'
 import { Car } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   AlertGroup,
   ContextMenuGroup,
@@ -58,8 +58,8 @@ export function NuiLab() {
   }, [])
 
   return (
-    <div className="grid min-h-screen grid-cols-[22rem_1fr]">
-      <aside className="flex flex-col gap-6 overflow-y-auto border-r border-border bg-surface p-4">
+    <div className="grid h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,55fr)_minmax(0,45fr)] md:grid-cols-[22rem_minmax(0,1fr)] md:grid-rows-1">
+      <aside className="order-2 flex min-h-0 flex-col gap-6 overflow-y-auto border-t border-border bg-surface p-4 md:order-1 md:border-t-0 md:border-r">
         <div className="flex items-baseline justify-between">
           <h1 className="text-h4">Primitivas NUI</h1>
           <a href="?" className="text-caption text-ink-muted underline">
@@ -102,12 +102,55 @@ export function NuiLab() {
         </Surface>
       </aside>
 
-      <main
-        className="relative min-h-screen overflow-hidden"
-        style={{ background: SCENES[scene] }}
-      >
+      <Stage background={SCENES[scene]}>
         <NuiPrimitives icons={{ car: <Car size={20} /> }} />
-      </main>
+      </Stage>
     </div>
+  )
+}
+
+// Ancho mínimo del escenario virtual: el diálogo más ancho (26rem) con su margen entra sin recortarse.
+const MIN_STAGE = 480
+
+/**
+ * Escenario del lab. Las primitivas usan `position: fixed` (en el juego, la pantalla); acá el `transform` las ancla al
+ * escenario. En un teléfono el escenario es más angosto que `MIN_STAGE`: se dibuja a ese ancho y se escala para entrar.
+ */
+function Stage({
+  background,
+  children,
+}: {
+  background: string
+  children: React.ReactNode
+}) {
+  const box = useRef<HTMLElement>(null)
+  const [size, setSize] = useState({ w: 0, h: 0 })
+  useLayoutEffect(() => {
+    const el = box.current
+    if (!el) return
+    const fit = () => setSize({ w: el.clientWidth, h: el.clientHeight })
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const scale = size.w > 0 ? Math.min(1, size.w / MIN_STAGE) : 1
+  return (
+    <main
+      ref={box}
+      className="relative order-1 overflow-hidden md:order-2"
+      style={{ background }}
+    >
+      <div
+        className="absolute top-0 left-0 origin-top-left"
+        style={{
+          width: size.w / scale || '100%',
+          height: size.h / scale || '100%',
+          transform: `scale(${scale})`,
+        }}
+      >
+        {children}
+      </div>
+    </main>
   )
 }
