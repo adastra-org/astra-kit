@@ -1,5 +1,6 @@
-import type { ContextItem, ContextMenuData } from '@adastrarp/nui'
+import type { ContextItem, ContextMenuData, ContextTone } from '@adastrarp/nui'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { cx } from '../cx'
 import { Surface } from '../Surface'
@@ -14,8 +15,27 @@ export interface ContextMenuProps {
   icons?: IconMap
 }
 
+// Cada ítem se ve como botón también en reposo (fondo y borde suaves); hover y foco lo levantan.
 const ROW =
-  'flex w-full items-center gap-3 px-4 text-left text-body text-ink transition-colors duration-(--duration-fast) hover:bg-surface-overlay focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus aria-disabled:cursor-not-allowed aria-disabled:text-ink-subtle aria-disabled:hover:bg-transparent motion-reduce:transition-none'
+  'flex w-full items-center gap-3 border border-border bg-surface-overlay/40 px-4 text-left text-body text-ink transition-colors duration-(--duration-fast) hover:border-border-strong hover:bg-surface-overlay focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus aria-disabled:cursor-not-allowed aria-disabled:border-transparent aria-disabled:bg-transparent aria-disabled:text-ink-subtle aria-disabled:hover:bg-transparent motion-reduce:transition-none'
+
+const TONE: Record<ContextTone, { row: string; icon: string }> = {
+  accent: {
+    row: 'border-accent/40 bg-accent/10 hover:border-accent/70 hover:bg-accent/20',
+    icon: 'text-accent',
+  },
+  warning: {
+    row: 'border-warning/40 bg-warning-surface hover:border-warning/70 hover:bg-warning/20',
+    icon: 'text-warning',
+  },
+  danger: {
+    row: 'border-danger/40 bg-danger-surface hover:border-danger/70 hover:bg-danger/20',
+    icon: 'text-danger',
+  },
+}
+
+// Spring `snappy` del DS (k 320, c 24, m 1): cambio de sección.
+const SNAPPY = { type: 'spring', stiffness: 320, damping: 24, mass: 1 } as const
 
 /**
  * Menú de contexto navegable con teclado: ↑ ↓ Inicio Fin mueven, Enter / Espacio eligen, → o Enter abren un submenú,
@@ -29,6 +49,9 @@ export function ContextMenu({
   icons,
 }: ContextMenuProps) {
   const [trail, setTrail] = useState<ContextItem[]>([])
+  // 1 = entra a un submenú (llega desde la derecha), -1 = vuelve (desde la izquierda).
+  const [dir, setDir] = useState<1 | -1>(1)
+  const reduce = useReducedMotion()
   const [active, setActive] = useState(0)
   const root = useRef<HTMLDivElement>(null)
   const list = useRef<HTMLDivElement>(null)
@@ -54,6 +77,7 @@ export function ContextMenu({
   const enter = (item: ContextItem, index: number) => {
     if (item.disabled) return
     if (item.items) {
+      setDir(1)
       setTrail((t) => [...t, item])
       setActive(0)
       return
@@ -63,6 +87,7 @@ export function ContextMenu({
   }
   const back = () => {
     if (trail.length === 0) return onClose()
+    setDir(-1)
     setTrail((t) => t.slice(0, -1))
     setActive(0)
   }
@@ -122,11 +147,22 @@ export function ContextMenu({
         )}
         <h2 className="truncate text-h4">{title}</h2>
       </div>
-      <div
+      <motion.div
+        key={trail.map((t) => t.id).join('/') || '.'}
         ref={list}
         role="menu"
         aria-label={title}
-        className="flex flex-col gap-1 p-2"
+        className="flex flex-col gap-1.5 p-2"
+        custom={dir}
+        variants={{
+          enter: (d: number) => ({ x: reduce ? 0 : d * 48, opacity: 0 }),
+          center: { x: 0, opacity: 1 },
+          exit: (d: number) => ({ x: reduce ? 0 : d * -48, opacity: 0 }),
+        }}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={reduce ? { duration: 0 } : SNAPPY}
       >
         {items.map((item, i) => {
           const rich = Boolean(item.description || item.metadata?.length)
@@ -143,15 +179,31 @@ export function ContextMenu({
               className={cx(
                 ROW,
                 rich ? 'rounded-lg py-3' : 'h-11 rounded-full',
+                item.tone && !item.disabled && TONE[item.tone].row,
               )}
             >
               {item.icon && icons?.[item.icon] && (
-                <span aria-hidden className="shrink-0 text-ink-muted">
+                <span
+                  aria-hidden
+                  className={cx(
+                    'shrink-0',
+                    item.tone && !item.disabled
+                      ? TONE[item.tone].icon
+                      : 'text-ink-muted',
+                  )}
+                >
                   {icons[item.icon]}
                 </span>
               )}
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-label">{item.label}</span>
+                <span
+                  className={cx(
+                    'block truncate text-label',
+                    item.tone && !item.disabled && TONE[item.tone].icon,
+                  )}
+                >
+                  {item.label}
+                </span>
                 {item.description && (
                   <span className="block text-body-sm text-ink-muted">
                     {item.description}
@@ -160,9 +212,19 @@ export function ContextMenu({
                 {item.metadata?.map((m) => (
                   <span
                     key={m.label}
-                    className="flex justify-between gap-3 text-caption text-ink-muted"
+                    className="flex items-center justify-between gap-3 text-caption text-ink-muted"
                   >
-                    <span>{m.label}</span>
+                    <span className="flex items-center gap-1.5">
+                      {m.icon && icons?.[m.icon] && (
+                        <span
+                          aria-hidden
+                          className="grid size-3.5 shrink-0 place-items-center [&_svg]:size-3.5"
+                        >
+                          {icons[m.icon]}
+                        </span>
+                      )}
+                      {m.label}
+                    </span>
                     <span className="text-data">{m.value}</span>
                   </span>
                 ))}
@@ -177,7 +239,7 @@ export function ContextMenu({
             </button>
           )
         })}
-      </div>
+      </motion.div>
     </Surface>
   )
 }

@@ -44,12 +44,21 @@ export interface TextUiData {
   /** Tecla a mostrar como `Kbd`, p. ej. `E`. Sin tecla, solo texto. */
   key?: string
   text: string
+  /** Color de la pill según el lugar: `safe` (zona protegida), `danger` (zona roja), `info`. Sin tono, neutra. */
+  tone?: TextUiTone
 }
+
+export type TextUiTone = 'safe' | 'danger' | 'info'
 
 export interface ContextMetadata {
   label: string
   value: string | number
+  /** Clave de ícono (mapa `icons` del host), a la izquierda del dato. */
+  icon?: string
 }
+
+/** Peso de una acción: `accent` la destaca, `warning` pide atención (vender, entregar), `danger` es destructiva. */
+export type ContextTone = 'accent' | 'warning' | 'danger'
 
 export interface ContextItem {
   /** Estable dentro del menú: es lo que vuelve a Lua en `context:select`. */
@@ -59,6 +68,8 @@ export interface ContextItem {
   /** Clave de ícono; la resuelve la app con el mapa `icons` del host (lucide-react). */
   icon?: string
   disabled?: boolean
+  /** Acción importante: color propio. Sin tono, neutra. */
+  tone?: ContextTone
   metadata?: ContextMetadata[]
   /** Submenú: si tiene `items`, el ítem navega en vez de seleccionar. */
   items?: ContextItem[]

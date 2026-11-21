@@ -52,10 +52,12 @@ describe('geometría', () => {
     expect(circlePath({ x: 0, y: 0, r: 0 })).toBe('')
   })
 
-  test('metaball: sin puente más allá de reach; afinado continuo cerca del límite', () => {
+  test('metaball: sin puente más allá de reach; se corta antes de volverse un hilo', () => {
     const a = { x: 0, y: 0, r: 20 }
     expect(metaballPath(a, { x: 52, y: 0, r: 20 }, 12)).toBe('')
-    expect(metaballPath(a, { x: 51, y: 0, r: 20 }, 12)).not.toBe('')
+    // Cerca del límite el cuello sería un hilo de 1 px: ruptura.
+    expect(metaballPath(a, { x: 51, y: 0, r: 20 }, 12)).toBe('')
+    expect(metaballPath(a, { x: 44, y: 0, r: 20 }, 12)).not.toBe('')
     // Uno adentro del otro: no hay puente.
     expect(metaballPath(a, { x: 2, y: 0, r: 5 }, 12)).toBe('')
   })

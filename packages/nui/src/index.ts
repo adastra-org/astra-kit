@@ -24,6 +24,7 @@ export {
   type ContextItem,
   type ContextMenuData,
   type ContextMetadata,
+  type ContextTone,
   type InputDialogData,
   type InputField,
   type InputFieldType,
@@ -45,4 +46,5 @@ export {
   type SkillCheckNormalized,
   type SkillDifficulty,
   type TextUiData,
+  type TextUiTone,
 } from './primitives'

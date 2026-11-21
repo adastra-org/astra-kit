@@ -40,6 +40,16 @@ const change = (el: HTMLInputElement | HTMLSelectElement, value: string) =>
       }),
     )
   })
+/** Elige una opción del select propio: abre la lista y la toca. */
+const pick = async (name: string, label: string) => {
+  await click(field(name))
+  const option = [...host.querySelectorAll('[role="option"]')].find(
+    (o) => o.textContent === label,
+  )!
+  await act(async () => {
+    option.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+  })
+}
 const field = (name: string) =>
   host.querySelector<HTMLInputElement & HTMLSelectElement>(`[name="${name}"]`)!
 
@@ -149,9 +159,10 @@ describe('<InputDialog>', () => {
     mount(<InputDialog data={form} onResult={(v) => (got = v)} />)
     await change(field('name'), 'Faku')
     await change(field('age'), '30')
-    await change(field('kind'), 'b')
+    await pick('kind', 'B')
     await click(field('terms'))
-    await change(field('born'), '1990-05-01')
+    await change(field('born'), '01051990')
+    expect(field('born').value).toBe('01/05/1990')
     await click(byText('Aceptar'))
     expect(got).toEqual({
       name: 'Faku',
@@ -197,6 +208,67 @@ describe('<InputDialog>', () => {
     await click(byText('Cancelar'))
     await key('Escape')
     expect(out).toEqual([null, null])
+  })
+
+  test('fecha: dd/mm/aaaa en pantalla, YYYY-MM-DD a Lua; una fecha imposible es un error', async () => {
+    let got: Record<string, InputValue> | null | undefined
+    mount(
+      <InputDialog
+        data={{
+          id: 'f',
+          title: 'T',
+          fields: [
+            { id: 'd', type: 'date', label: 'Fecha', default: '2026-11-21' },
+          ],
+        }}
+        onResult={(v) => (got = v)}
+      />,
+    )
+    expect(field('d').value).toBe('21/11/2026')
+    await change(field('d'), '31/02/2026')
+    await click(byText('Aceptar'))
+    expect(got).toBeUndefined()
+    expect(host.textContent).toContain('formato dd/mm/aaaa')
+    await change(field('d'), '28/02/2026')
+    await click(byText('Aceptar'))
+    expect(got).toEqual({ d: '2026-02-28' })
+  })
+
+  test('número: los botones suman y restan dentro de min/max', async () => {
+    let got: Record<string, InputValue> | null | undefined
+    mount(
+      <InputDialog
+        data={{
+          id: 'f',
+          title: 'T',
+          fields: [
+            { id: 'n', type: 'number', label: 'N', min: 1, max: 2, default: 1 },
+          ],
+        }}
+        onResult={(v) => (got = v)}
+      />,
+    )
+    const minus = host.querySelector<HTMLButtonElement>(
+      '[aria-label="Restar"]',
+    )!
+    const plus = host.querySelector<HTMLButtonElement>('[aria-label="Sumar"]')!
+    expect(minus.disabled).toBe(true)
+    await click(plus)
+    expect(field('n').value).toBe('2')
+    expect(plus.disabled).toBe(true)
+    await click(byText('Aceptar'))
+    expect(got).toEqual({ n: 2 })
+  })
+
+  test('select: Escape cierra la lista sin cerrar el diálogo', async () => {
+    const out: unknown[] = []
+    mount(<InputDialog data={form} onResult={(v) => out.push(v)} />)
+    await click(field('kind'))
+    expect(field('kind').getAttribute('aria-expanded')).toBe('true')
+    field('kind').focus()
+    await key('Escape')
+    expect(field('kind').getAttribute('aria-expanded')).toBe('false')
+    expect(out).toEqual([])
   })
 
   test('checkbox requerido sin marcar es un error', async () => {

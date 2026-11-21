@@ -77,7 +77,7 @@ export function ProgressBar({ data, onEnd }: ProgressProps) {
     <div
       data-adastra="ProgressBar"
       data-kind="bar"
-      className="flex w-80 flex-col gap-2 rounded-full border border-border bg-surface-raised px-6 py-3 text-ink shadow-card"
+      className="flex w-96 flex-col gap-2 rounded-full border border-border bg-surface-raised px-9 py-3 text-ink shadow-card"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="min-w-0 truncate text-label">
@@ -107,7 +107,7 @@ export function ProgressBar({ data, onEnd }: ProgressProps) {
   )
 }
 
-/** Orbe con anillo: porcentaje al centro, etiqueta debajo. */
+/** Orbe con anillo: porcentaje al centro (sin `%`: el anillo ya dice que es una proporción), etiqueta debajo. */
 export function ProgressCircle({ data, onEnd }: ProgressProps) {
   const arc = useRef<SVGCircleElement>(null)
   const orb = useRef<HTMLDivElement>(null)
@@ -162,8 +162,8 @@ export function ProgressCircle({ data, onEnd }: ProgressProps) {
             className="stroke-accent"
           />
         </svg>
-        <span className="text-data text-ink">
-          <span ref={pct}>0</span> %
+        <span ref={pct} className="text-h4 text-ink tabular-nums">
+          0
         </span>
       </div>
       {data.label && (

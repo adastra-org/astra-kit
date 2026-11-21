@@ -149,7 +149,9 @@ export function TextUiGroup() {
       </Button>
       <Button
         size="sm"
-        onClick={() => emitPrimitive('textui:show', { text: 'Zona segura' })}
+        onClick={() =>
+          emitPrimitive('textui:show', { text: 'Zona segura', tone: 'safe' })
+        }
       >
         Sin tecla
       </Button>
@@ -174,25 +176,48 @@ export function ContextMenuGroup() {
             id: 'garaje',
             title: 'Garaje',
             items: [
-              { id: 'sacar', label: 'Sacar vehículo', icon: 'car' },
+              {
+                id: 'sacar',
+                label: 'Sacar vehículo',
+                description: 'Aparece en la salida del garaje',
+                icon: 'car',
+              },
               {
                 id: 'estado',
                 label: 'Estado',
                 description: 'Motor y carrocería',
+                icon: 'gauge',
                 metadata: [
-                  { label: 'Salud', value: 87 },
-                  { label: 'Combustible', value: '62 %' },
+                  { label: 'Salud', value: 87, icon: 'heart' },
+                  { label: 'Combustible', value: '62 %', icon: 'fuel' },
                 ],
               },
-              { id: 'vender', label: 'Vender', disabled: true },
               {
                 id: 'mods',
                 label: 'Modificaciones',
+                description: 'Motor, frenos y turbo',
+                icon: 'wrench',
                 items: [
-                  { id: 'motor', label: 'Motor' },
-                  { id: 'frenos', label: 'Frenos' },
-                  { id: 'turbo', label: 'Turbo', disabled: true },
+                  { id: 'motor', label: 'Motor', description: 'Nivel 2 de 4' },
+                  {
+                    id: 'frenos',
+                    label: 'Frenos',
+                    description: 'Nivel 1 de 3',
+                  },
+                  {
+                    id: 'turbo',
+                    label: 'Turbo',
+                    description: 'Requiere motor nivel 3',
+                    disabled: true,
+                  },
                 ],
+              },
+              {
+                id: 'vender',
+                label: 'Vender',
+                description: 'Se transfiere al concesionario',
+                icon: 'banknote',
+                tone: 'warning',
               },
             ],
           })

@@ -1,17 +1,10 @@
-export type Page = 'components' | 'hud' | 'nui'
+import type { Page } from './pages'
 
 const PAGES: { id: Page; label: string }[] = [
   { id: 'components', label: 'Componentes' },
   { id: 'hud', label: 'HUD' },
   { id: 'nui', label: 'Primitivas NUI' },
 ]
-
-/** Página del lab: `#hud` / `#nui` (o `?page=` por compatibilidad); sin nada, los componentes. */
-export function currentPage(): Page {
-  const raw =
-    location.hash.slice(1) || new URLSearchParams(location.search).get('page')
-  return raw === 'hud' || raw === 'nui' ? raw : 'components'
-}
 
 /** Navegación entre las páginas del lab. Usa el hash: funciona igual en Vite y dentro de un iframe publicado. */
 export function LabNav({ current }: { current: Page }) {

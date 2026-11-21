@@ -1,6 +1,6 @@
 import { mockNui } from '@adastrarp/nui'
 import { Chip, NuiPrimitives, Surface } from '@adastrarp/ui'
-import { Car } from 'lucide-react'
+import { Banknote, Car, Fuel, Gauge, Heart, Wrench } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   AlertGroup,
@@ -102,10 +102,20 @@ export function NuiLab() {
       </aside>
 
       <Stage background={SCENES[scene]}>
-        <NuiPrimitives icons={{ car: <Car size={20} /> }} />
+        <NuiPrimitives icons={ICONS} />
       </Stage>
     </div>
   )
+}
+
+// Íconos que pueden pedir los datos de Lua (`icon`). La app decide el set; acá, los de los ejemplos.
+const ICONS = {
+  car: <Car size={20} />,
+  gauge: <Gauge size={20} />,
+  wrench: <Wrench size={20} />,
+  banknote: <Banknote size={20} />,
+  heart: <Heart size={20} />,
+  fuel: <Fuel size={20} />,
 }
 
 // Ancho mínimo del escenario virtual: el diálogo más ancho (26rem) con su margen entra sin recortarse.
