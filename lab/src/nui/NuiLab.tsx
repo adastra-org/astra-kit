@@ -186,6 +186,32 @@ export function NuiLab() {
           </Button>
         </Group>
 
+        <Group label="Text UI">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('textui:show', { key: 'E', text: 'Abrir puerta' })
+            }
+          >
+            [E] Abrir
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('textui:show', { text: 'Zona segura' })
+            }
+          >
+            Sin tecla
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => emitPrimitive('textui:hide', undefined)}
+          >
+            Ocultar
+          </Button>
+        </Group>
+
         <Surface level="sunken" className="p-3">
           <p className="mb-1 text-eyebrow">Eventos a Lua</p>
           <ul className="text-code break-all text-ink-muted">

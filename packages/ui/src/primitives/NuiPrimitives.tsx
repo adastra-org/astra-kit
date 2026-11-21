@@ -4,11 +4,14 @@ import {
   usePrimitiveEvent,
   type ProgressNormalized,
   type ProgressStatus,
+  type TextUiData,
 } from '@adastrarp/nui'
 import { useCallback, useRef, useState } from 'react'
+import { Reveal } from '../Reveal'
 import { Notifications } from './Notifications'
 import { Progress } from './Progress'
 import type { IconMap } from './shared'
+import { TextUi } from './TextUi'
 import { useNotifications } from './useNotifications'
 
 export interface NuiPrimitivesProps {
@@ -50,9 +53,24 @@ export function NuiPrimitives(_props: NuiPrimitivesProps = {}) {
     if (cur && (!d?.id || d.id === cur.id)) endProgress(cur.id, 'cancelled')
   })
 
+  // Text UI: una sola pill; `hide` conserva el último texto mientras `Reveal` la saca.
+  const [textUi, setTextUi] = useState<TextUiData | null>(null)
+  const [textUiOpen, setTextUiOpen] = useState(false)
+  usePrimitiveEvent('textui:show', (d) => {
+    setTextUi(d)
+    setTextUiOpen(true)
+  })
+  usePrimitiveEvent('textui:hide', () => setTextUiOpen(false))
+
   return (
     <>
       <Notifications items={toasts.items} />
+      <Reveal
+        open={textUiOpen}
+        className="pointer-events-none fixed bottom-1/3 left-1/2 z-40 -translate-x-1/2"
+      >
+        {textUi && <TextUi data={textUi} />}
+      </Reveal>
       {progress && (
         <div
           data-adastra="ProgressHost"

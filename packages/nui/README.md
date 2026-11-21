@@ -66,6 +66,9 @@ SendNUIMessage({ action = 'notify:show', data = { type = 'success', title = 'Ban
 | `progress:start`  | `{ id, kind? = 'bar' \| 'circle', label?, duration, canCancel?, cancelKey? = 'x' }`     |
 | `progress:cancel` | `{ id? }` (sin `id`: la activa)                                                         |
 
+| `textui:show` | `{ key?, text }` (una sola a la vez; otro `show` reemplaza) |
+| `textui:hide` | sin datos |
+
 Callbacks (UI -> Lua): `progress:end` `{ id, status: 'completed' \| 'cancelled' }`. Una barra nueva cancela la anterior
 (Lua recibe `cancelled` con el id viejo).
 

@@ -14,6 +14,7 @@ export {
   ProgressCircle,
   type ProgressProps,
 } from './primitives/Progress'
+export { TextUi } from './primitives/TextUi'
 export { Notifications } from './primitives/Notifications'
 export {
   toastHeight,

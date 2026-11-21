@@ -51,6 +51,7 @@ import { NuiPrimitives } from '@adastrarp/ui'
 | ------------ | ----------------------------------------------- | ----------------------------------- |
 | Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss`     |
 | Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel` |
+| Text UI      | `<TextUi data />`                               | `textui:show`, `textui:hide`        |
 
 ### Notificación
 
@@ -66,3 +67,9 @@ anillo. Dura `duration` ms y llama `onEnd('completed')` una sola vez; con `canCa
 Escape llama `onEnd('cancelled')` y se muestra la tecla con `Kbd`. El avance se escribe por ref (sin re-render) y el rAF solo
 corre mientras hay una corrida. Es información, no decoración: reduced motion no lo frena. `role="progressbar"` con
 `aria-valuenow`.
+
+### Text UI
+
+`<TextUi data={{ key: 'E', text: 'Abrir' }} />`: pill con `Kbd` y texto. Sin `key`, solo texto. `role="status"`, sin foco ni
+mouse. En el host entra y sale con `Reveal` (180 ms, solo opacidad con reduced motion); un `textui:show` nuevo reemplaza el
+anterior.
