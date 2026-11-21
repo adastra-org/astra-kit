@@ -50,7 +50,7 @@ export function SkillCheck({ data, onResult }: SkillCheckProps) {
       if (done) return
       done = true
       cancelAnimationFrame(raf)
-      if (ok && index + 1 < rounds.length) setIndex(index + 1)
+      if (ok && index + 1 < rounds.length) setIndex((i) => i + 1)
       else result.current?.(ok)
     }
     let angle = 0

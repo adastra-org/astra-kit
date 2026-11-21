@@ -125,97 +125,114 @@ export function InputDialog({ data, onResult }: InputDialogProps) {
   )
 }
 
-function FieldControl({
-  field: f,
-  value,
-  error,
-  onChange,
-}: {
+interface ControlProps {
   field: InputField
   value: Raw
   error?: string
   onChange: (v: Raw) => void
+}
+
+function FieldControl(props: ControlProps) {
+  const { field: f } = props
+  if (f.type === 'select') return <SelectField {...props} />
+  if (f.type === 'checkbox') return <CheckboxField {...props} />
+  return <TextField {...props} />
+}
+
+/** Descripción (si no hay error) o el error del campo, enlazado por `${id}-error`. */
+function FieldNote({
+  id,
+  description,
+  error,
+}: {
+  id: string
+  description?: string
+  error?: string
 }) {
+  if (error) {
+    return (
+      <p id={`${id}-error`} className="text-caption text-danger">
+        Error: {error}
+      </p>
+    )
+  }
+  return description ? (
+    <p className="text-caption text-ink-muted">{description}</p>
+  ) : null
+}
+
+const invalid = (id: string, error?: string) => ({
+  'aria-invalid': error ? (true as const) : undefined,
+  'aria-describedby': error ? `${id}-error` : undefined,
+})
+
+function SelectField({ field: f, value, error, onChange }: ControlProps) {
   const id = useId()
   const label = f.required ? f.label : `${f.label} (opcional)`
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-label text-ink">
+        {label}
+      </label>
+      <select
+        id={id}
+        name={f.id}
+        value={String(value)}
+        {...invalid(id, error)}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${SELECT_CLASS} ${error ? 'border-danger' : 'border-border-strong'}`}
+      >
+        <option value="">Elige una opción</option>
+        {f.options?.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <FieldNote id={id} description={f.description} error={error} />
+    </div>
+  )
+}
 
-  if (f.type === 'select') {
-    return (
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={id} className="text-label text-ink">
-          {label}
-        </label>
-        <select
+function CheckboxField({ field: f, value, error, onChange }: ControlProps) {
+  const id = useId()
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label
+        htmlFor={id}
+        className="flex items-center gap-3 text-label text-ink"
+      >
+        <input
           id={id}
           name={f.id}
-          value={String(value)}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${id}-error` : undefined}
-          onChange={(e) => onChange(e.target.value)}
-          className={`${SELECT_CLASS} ${error ? 'border-danger' : 'border-border-strong'}`}
-        >
-          <option value="">Elige una opción</option>
-          {f.options?.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        {f.description && !error && (
-          <p className="text-caption text-ink-muted">{f.description}</p>
-        )}
-        {error && (
-          <p id={`${id}-error`} className="text-caption text-danger">
-            Error: {error}
-          </p>
-        )}
-      </div>
-    )
-  }
+          type="checkbox"
+          checked={value === true}
+          {...invalid(id, error)}
+          onChange={(e) => onChange(e.target.checked)}
+          className="size-5 accent-accent-fill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        />
+        {f.label}
+      </label>
+      <FieldNote id={id} description={f.description} error={error} />
+    </div>
+  )
+}
 
-  if (f.type === 'checkbox') {
-    return (
-      <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor={id}
-          className="flex items-center gap-3 text-label text-ink"
-        >
-          <input
-            id={id}
-            name={f.id}
-            type="checkbox"
-            checked={value === true}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? `${id}-error` : undefined}
-            onChange={(e) => onChange(e.target.checked)}
-            className="size-5 accent-accent-fill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-          />
-          {f.label}
-        </label>
-        {f.description && !error && (
-          <p className="text-caption text-ink-muted">{f.description}</p>
-        )}
-        {error && (
-          <p id={`${id}-error`} className="text-caption text-danger">
-            Error: {error}
-          </p>
-        )}
-      </div>
-    )
-  }
-
+function TextField({ field: f, value, error, onChange }: ControlProps) {
+  const label = f.required ? f.label : `${f.label} (opcional)`
+  const num = f.type === 'number'
   return (
     <Field
       name={f.id}
       label={label}
       hint={f.description}
       error={error}
-      type={f.type}
+      type={f.type === 'number' || f.type === 'date' ? f.type : 'text'}
       value={String(value)}
       placeholder={f.placeholder}
-      min={f.type === 'number' ? f.min : undefined}
-      max={f.type === 'number' ? f.max : undefined}
-      step={f.type === 'number' ? f.step : undefined}
+      min={num ? f.min : undefined}
+      max={num ? f.max : undefined}
+      step={num ? f.step : undefined}
       onChange={(e) => onChange(e.target.value)}
     />
   )
