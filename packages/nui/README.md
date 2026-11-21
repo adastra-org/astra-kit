@@ -68,8 +68,10 @@ SendNUIMessage({ action = 'notify:show', data = { type = 'success', title = 'Ban
 
 | `textui:show` | `{ key?, text }` (una sola a la vez; otro `show` reemplaza) |
 | `textui:hide` | sin datos |
+| `context:open` | `{ id, title, items: { id, label, description?, icon?, disabled?, metadata?, items? }[] }` |
+| `context:close` | sin datos |
 
-Callbacks (UI -> Lua): `progress:end` `{ id, status: 'completed' \| 'cancelled' }`. Una barra nueva cancela la anterior
+Callbacks (UI -> Lua): `context:select` `{ id, path }` (ids de la raíz al ítem), `context:close` `{ id }`, `progress:end` `{ id, status: 'completed' \| 'cancelled' }`. Una barra nueva cancela la anterior
 (Lua recibe `cancelled` con el id viejo).
 
 **Foco y teclado.** `SetNuiFocus` es del lado Lua. La barra y el skill check leen el teclado de la página: si la NUI no

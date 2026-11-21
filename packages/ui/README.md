@@ -52,6 +52,7 @@ import { NuiPrimitives } from '@adastrarp/ui'
 | Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss`     |
 | Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel` |
 | Text UI      | `<TextUi data />`                               | `textui:show`, `textui:hide`        |
+| Menú         | `<ContextMenu data onSelect onClose />`         | `context:open`, `context:close`     |
 
 ### Notificación
 
@@ -73,3 +74,11 @@ corre mientras hay una corrida. Es información, no decoración: reduced motion 
 `<TextUi data={{ key: 'E', text: 'Abrir' }} />`: pill con `Kbd` y texto. Sin `key`, solo texto. `role="status"`, sin foco ni
 mouse. En el host entra y sale con `Reveal` (180 ms, solo opacidad con reduced motion); un `textui:show` nuevo reemplaza el
 anterior.
+
+### Menú de contexto
+
+`<ContextMenu data onSelect onClose icons />`. `role="menu"` con ítems `menuitem` y tabindex móvil (una sola parada de Tab).
+↑ ↓ Inicio Fin mueven y dan la vuelta, Enter / Espacio eligen, → abre un submenú, ← / Backspace / Escape vuelven y Escape en
+la raíz cierra. Los deshabilitados se saltan y quedan `aria-disabled`. Una fila con descripción o metadata pasa de pill a
+`rounded-lg`. `onSelect` recibe el `path` de ids; en el host, elegir o cerrar avisa a Lua (`context:select` / `context:close`)
+y el menú usa `useScreenBlur`.

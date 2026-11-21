@@ -5,6 +5,7 @@ import {
   type NotifyType,
 } from '@adastrarp/nui'
 import { Button, Chip, NuiPrimitives, Surface } from '@adastrarp/ui'
+import { Car } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 
 // Escenario: un "juego" falso detrás. En el juego real no hay DOM detrás de la NUI.
@@ -212,6 +213,49 @@ export function NuiLab() {
           </Button>
         </Group>
 
+        <Group label="Menú de contexto">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('context:open', {
+                id: 'garaje',
+                title: 'Garaje',
+                items: [
+                  { id: 'sacar', label: 'Sacar vehículo', icon: 'car' },
+                  {
+                    id: 'estado',
+                    label: 'Estado',
+                    description: 'Motor y carrocería',
+                    metadata: [
+                      { label: 'Salud', value: 87 },
+                      { label: 'Combustible', value: '62 %' },
+                    ],
+                  },
+                  { id: 'vender', label: 'Vender', disabled: true },
+                  {
+                    id: 'mods',
+                    label: 'Modificaciones',
+                    items: [
+                      { id: 'motor', label: 'Motor' },
+                      { id: 'frenos', label: 'Frenos' },
+                      { id: 'turbo', label: 'Turbo', disabled: true },
+                    ],
+                  },
+                ],
+              })
+            }
+          >
+            Abrir menú
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => emitPrimitive('context:close', undefined)}
+          >
+            Cerrar desde Lua
+          </Button>
+        </Group>
+
         <Surface level="sunken" className="p-3">
           <p className="mb-1 text-eyebrow">Eventos a Lua</p>
           <ul className="text-code break-all text-ink-muted">
@@ -227,7 +271,7 @@ export function NuiLab() {
         className="relative min-h-screen overflow-hidden"
         style={{ background: SCENES[scene] }}
       >
-        <NuiPrimitives />
+        <NuiPrimitives icons={{ car: <Car size={20} /> }} />
       </main>
     </div>
   )

@@ -2,12 +2,15 @@ import {
   callbackPrimitive,
   normalizeProgress,
   usePrimitiveEvent,
+  useScreenBlur,
+  type ContextMenuData,
   type ProgressNormalized,
   type ProgressStatus,
   type TextUiData,
 } from '@adastrarp/nui'
 import { useCallback, useRef, useState } from 'react'
 import { Reveal } from '../Reveal'
+import { ContextMenu } from './ContextMenu'
 import { Notifications } from './Notifications'
 import { Progress } from './Progress'
 import type { IconMap } from './shared'
@@ -23,7 +26,7 @@ export interface NuiPrimitivesProps {
  * Conecta el contrato de mensajes de `@adastrarp/nui` con los componentes: monta una vez en la raíz de la NUI y Lua
  * maneja todo con `SendNUIMessage`. Cada primitiva también se puede usar suelta, sin este host.
  */
-export function NuiPrimitives(_props: NuiPrimitivesProps = {}) {
+export function NuiPrimitives({ icons }: NuiPrimitivesProps = {}) {
   const toasts = useNotifications()
   usePrimitiveEvent('notify:show', (d) => toasts.notify(d))
   usePrimitiveEvent('notify:dismiss', (d) => toasts.dismiss(d.id))
@@ -62,9 +65,39 @@ export function NuiPrimitives(_props: NuiPrimitivesProps = {}) {
   })
   usePrimitiveEvent('textui:hide', () => setTextUiOpen(false))
 
+  // Menú de contexto: modal, con blur del mundo. Elegir o cerrar avisa a Lua; Lua decide si abre otro.
+  const [menu, setMenu] = useState<ContextMenuData | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  useScreenBlur(menuOpen)
+  usePrimitiveEvent('context:open', (d) => {
+    setMenu(d)
+    setMenuOpen(true)
+  })
+  usePrimitiveEvent('context:close', () => setMenuOpen(false))
+
   return (
     <>
       <Notifications items={toasts.items} />
+      <Reveal
+        open={menuOpen}
+        className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
+      >
+        {menu && (
+          <ContextMenu
+            key={menu.id}
+            data={menu}
+            icons={icons}
+            onSelect={(path) => {
+              setMenuOpen(false)
+              void callbackPrimitive('context:select', { id: menu.id, path })
+            }}
+            onClose={() => {
+              setMenuOpen(false)
+              void callbackPrimitive('context:close', { id: menu.id })
+            }}
+          />
+        )}
+      </Reveal>
       <Reveal
         open={textUiOpen}
         className="pointer-events-none fixed bottom-1/3 left-1/2 z-40 -translate-x-1/2"
