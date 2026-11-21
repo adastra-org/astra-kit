@@ -47,9 +47,10 @@ import { NuiPrimitives } from '@adastrarp/ui'
 
 `?page=nui` del lab (`bun run lab`) dispara cada una con el mismo mensaje que mandaría Lua.
 
-| Primitiva    | Componente / hook                               | Mensaje                         |
-| ------------ | ----------------------------------------------- | ------------------------------- |
-| Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss` |
+| Primitiva    | Componente / hook                               | Mensaje                             |
+| ------------ | ----------------------------------------------- | ----------------------------------- |
+| Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss`     |
+| Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel` |
 
 ### Notificación
 
@@ -57,3 +58,11 @@ Toast pill: success / info / warning / error, siempre con ícono (y el tipo en t
 Nace del borde derecho como goo (`gentle`, con arco) y se pega a las vecinas cuando la pila se reacomoda. No toma foco ni
 mouse (`pointer-events-none`); `aria-live="polite"`, y los errores son `role="alert"`. `duration` en ms (default 4000,
 `0` = no se cierra sola); repetir el `id` reemplaza la notificación. Reduced motion: las pills saltan a su caja final.
+
+### Progreso
+
+`<Progress data onEnd />` (o `ProgressBar` / `ProgressCircle`). Barra pill con etiqueta y porcentaje tabular, o círculo con
+anillo. Dura `duration` ms y llama `onEnd('completed')` una sola vez; con `canCancel` la tecla (`cancelKey`, default X) o
+Escape llama `onEnd('cancelled')` y se muestra la tecla con `Kbd`. El avance se escribe por ref (sin re-render) y el rAF solo
+corre mientras hay una corrida. Es información, no decoración: reduced motion no lo frena. `role="progressbar"` con
+`aria-valuenow`.

@@ -59,10 +59,18 @@ mapas de tipos; `normalizeNotify` / `normalizeProgress` / `normalizeSkillCheck` 
 SendNUIMessage({ action = 'notify:show', data = { type = 'success', title = 'Banco', description = 'Depósito acreditado' } })
 ```
 
-| Action           | Data                                                                                    |
-| ---------------- | --------------------------------------------------------------------------------------- |
-| `notify:show`    | `{ id?, type? = 'info', title?, description, duration? = 4000 }` (`duration = 0`: fija) |
-| `notify:dismiss` | `{ id }`                                                                                |
+| Action            | Data                                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| `notify:show`     | `{ id?, type? = 'info', title?, description, duration? = 4000 }` (`duration = 0`: fija) |
+| `notify:dismiss`  | `{ id }`                                                                                |
+| `progress:start`  | `{ id, kind? = 'bar' \| 'circle', label?, duration, canCancel?, cancelKey? = 'x' }`     |
+| `progress:cancel` | `{ id? }` (sin `id`: la activa)                                                         |
+
+Callbacks (UI -> Lua): `progress:end` `{ id, status: 'completed' \| 'cancelled' }`. Una barra nueva cancela la anterior
+(Lua recibe `cancelled` con el id viejo).
+
+**Foco y teclado.** `SetNuiFocus` es del lado Lua. La barra y el skill check leen el teclado de la página: si la NUI no
+tiene foco, Lua reenvía la tecla con `progress:cancel` / `skillcheck:input`.
 
 ## Lado Lua mínimo
 

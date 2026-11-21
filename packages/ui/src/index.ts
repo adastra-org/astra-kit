@@ -8,6 +8,12 @@ export { keyCaps } from './keys'
 export { Panel, type PanelProps } from './Panel'
 export { Reveal } from './Reveal'
 export { Surface, type SurfaceLevel } from './Surface'
+export {
+  Progress,
+  ProgressBar,
+  ProgressCircle,
+  type ProgressProps,
+} from './primitives/Progress'
 export { Notifications } from './primitives/Notifications'
 export {
   toastHeight,

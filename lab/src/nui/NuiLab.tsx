@@ -1,4 +1,9 @@
-import { emitPrimitive, mockNui, type NotifyType } from '@adastrarp/nui'
+import {
+  emitPrimitive,
+  mockNui,
+  nextPrimitiveId,
+  type NotifyType,
+} from '@adastrarp/nui'
 import { Button, Chip, NuiPrimitives, Surface } from '@adastrarp/ui'
 import { useEffect, useState, type ReactNode } from 'react'
 
@@ -129,6 +134,55 @@ export function NuiLab() {
             onClick={() => emitPrimitive('notify:dismiss', { id: 'fija' })}
           >
             Quitar fija
+          </Button>
+        </Group>
+
+        <Group label="Progreso">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('progress:start', {
+                id: nextPrimitiveId('progress'),
+                label: 'Reparando motor',
+                duration: 4000,
+              })
+            }
+          >
+            Barra
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('progress:start', {
+                id: nextPrimitiveId('progress'),
+                kind: 'circle',
+                label: 'Abriendo cerradura',
+                duration: 4000,
+              })
+            }
+          >
+            Círculo
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('progress:start', {
+                id: nextPrimitiveId('progress'),
+                label: 'Cancelable',
+                duration: 6000,
+                canCancel: true,
+                cancelKey: 'x',
+              })
+            }
+          >
+            Cancelable (X)
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => emitPrimitive('progress:cancel', undefined)}
+          >
+            Cancelar desde Lua
           </Button>
         </Group>
 
