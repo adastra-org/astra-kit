@@ -1,6 +1,6 @@
 {
   "name": "@adastrarp/nui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Typed React <-> Lua bridge for FiveM NUI: fetchNui, useNuiEvent, useNuiVisibility, browser mocks and screen blur.",
   "type": "module",
   "license": "MIT",

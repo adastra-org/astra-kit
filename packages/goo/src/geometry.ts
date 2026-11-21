@@ -23,6 +23,9 @@ const dist = (a: Pt, b: Pt) => Math.hypot(a[0] - b[0], a[1] - b[1])
 const clamp = (n: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, n))
 
+/** Ancho mínimo del cuello de un puente, relativo al radio menor, antes de cortarse. */
+export const PINCH = 0.3
+
 /** Círculo como dos arcos en sentido horario. Radio <= 0: nada. */
 export function circlePath({ x, y, r }: Circle): string {
   if (!(r > 0)) return ''
@@ -37,7 +40,8 @@ export function rectPath(x: number, y: number, w: number, h: number): string {
 
 /**
  * Puente metaball entre dos círculos (algoritmo de Hiroyuki Sato). `reach` es la separación entre bordes a partir de la cual
- * aparece el puente; al acercarse a `reach` el puente se afina hasta 0, así nunca "salta". Devuelve '' si no hay puente.
+ * aparece el puente; al acercarse a `reach` se afina y se corta (`PINCH`) antes de volverse un hilo. Devuelve '' si no hay
+ * puente.
  */
 export function metaballPath(
   a: Circle,
@@ -82,6 +86,15 @@ export function metaballPath(
   const h2 = along(p2, a2 + Math.PI / 2, r1 * d2)
   const h3 = along(p3, a3 + Math.PI / 2, r2 * d2)
   const h4 = along(p4, a4 - Math.PI / 2, r2 * d2)
+
+  // Ruptura (pinch-off): un líquido real se corta cuando el cuello se afina. Si el ancho a mitad del puente baja de
+  // `PINCH` del radio menor, no se dibuja: así no quedan hilos de 1 px entre pills que se separan.
+  const mid = (a: Pt, b: Pt, c: Pt, e: Pt): Pt => [
+    (a[0] + 3 * b[0] + 3 * c[0] + e[0]) / 8,
+    (a[1] + 3 * b[1] + 3 * c[1] + e[1]) / 8,
+  ]
+  const waist = dist(mid(p1, h1, h3, p3), mid(p2, h2, h4, p4))
+  if (gap > 0 && waist < Math.max(2, r2 * PINCH)) return ''
 
   // Orientación: polígono de control p1 -> p3 -> p4 -> p2; si es antihorario, se recorre al revés.
   const poly = [p1, p3, p4, p2]

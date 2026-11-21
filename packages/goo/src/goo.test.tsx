@@ -52,10 +52,12 @@ describe('geometría', () => {
     expect(circlePath({ x: 0, y: 0, r: 0 })).toBe('')
   })
 
-  test('metaball: sin puente más allá de reach; afinado continuo cerca del límite', () => {
+  test('metaball: sin puente más allá de reach; se corta antes de volverse un hilo', () => {
     const a = { x: 0, y: 0, r: 20 }
     expect(metaballPath(a, { x: 52, y: 0, r: 20 }, 12)).toBe('')
-    expect(metaballPath(a, { x: 51, y: 0, r: 20 }, 12)).not.toBe('')
+    // Cerca del límite el cuello sería un hilo de 1 px: ruptura.
+    expect(metaballPath(a, { x: 51, y: 0, r: 20 }, 12)).toBe('')
+    expect(metaballPath(a, { x: 44, y: 0, r: 20 }, 12)).not.toBe('')
     // Uno adentro del otro: no hay puente.
     expect(metaballPath(a, { x: 2, y: 0, r: 5 }, 12)).toBe('')
   })
@@ -278,6 +280,23 @@ describe('GooEngine', () => {
     for (let i = 0; i < 120 && c.pending; i++) c.frame()
     expect(e.frame.blobs.has('a')).toBe(false)
     expect(e.frame.d).toBe('')
+  })
+
+  test('remove con `to`: vuelve hacia ese punto mientras se encoge', () => {
+    const c = clock()
+    const e = new GooEngine({ schedule: c.schedule, cancel: c.cancel })
+    e.configure({ instant: true })
+    e.upsert({ id: 'a', x: 0, y: 0, w: 40, h: 40 })
+    e.configure({ instant: false })
+    e.remove('a', { x: 200, y: 100 })
+    let last = e.frame.blobs.get('a')!
+    for (let i = 0; i < 120 && c.pending; i++) {
+      c.frame()
+      last = e.frame.blobs.get('a') ?? last
+    }
+    expect(e.frame.blobs.has('a')).toBe(false)
+    expect(last.x).toBeGreaterThan(150)
+    expect(last.y).toBeGreaterThan(70)
   })
 
   test('instant: salta al objetivo sin programar frames', () => {

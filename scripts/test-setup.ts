@@ -5,3 +5,7 @@ GlobalRegistrator.register()
 ;(
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
+
+// Animaciones de motion instantáneas: happy-dom no corre WAAPI y cancelarlas deja promesas rechazadas entre tests.
+import { MotionGlobalConfig } from 'motion/react'
+MotionGlobalConfig.skipAnimations = true

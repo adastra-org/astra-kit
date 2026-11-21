@@ -41,6 +41,48 @@ requestScreenBlur(true, 250) // imperativo; llama al callback 'adastra:screenblu
 Natives (firma verificada en los natives de GTA, `GRAPHICS`): `BOOL TRIGGER_SCREENBLUR_FADE_IN(float transitionTime)` y
 `BOOL TRIGGER_SCREENBLUR_FADE_OUT(float transitionTime)`; el tiempo es en milisegundos. Úsalo en menús modales, no en HUD.
 
+## Primitivas: contrato de mensajes
+
+Contrato tipado de las primitivas de UI (notificación, progreso, text UI, menú, input, alerta, skill check, radial), sin
+depender de ox_lib ni de ningún framework. Los componentes viven en [`@adastrarp/ui`](../ui/README.md#primitivas-de-ui).
+
+```ts
+emitPrimitive('notify:show', { type: 'success', title: 'Banco', description: 'Depósito acreditado' }) // Lua -> UI, tipado
+usePrimitiveEvent('notify:show', (d) => ...)                                                           // useNuiEvent tipado
+callbackPrimitive('alert:result', { id: 'borrar', result: 'confirm' })                                // UI -> Lua (fetchNui)
+```
+
+`NuiPrimitiveActions` (Lua -> UI, `{ action, data }`) y `NuiPrimitiveCallbacks` (UI -> Lua, `RegisterNUICallback`) son los
+mapas de tipos; `normalizeNotify` / `normalizeProgress` / `normalizeSkillCheck` aplican defaults y sanean lo que llega de Lua.
+
+```lua
+SendNUIMessage({ action = 'notify:show', data = { type = 'success', title = 'Banco', description = 'Depósito acreditado' } })
+```
+
+| Action              | Data                                                                                                                                                                                                              |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `notify:show`       | `{ id?, type? = 'info', title?, description, duration? = 4000 }` (`duration = 0`: fija)                                                                                                                           |
+| `notify:dismiss`    | `{ id }`                                                                                                                                                                                                          |
+| `progress:start`    | `{ id, kind? = 'bar' \| 'circle', label?, duration, canCancel?, cancelKey? = 'x' }`                                                                                                                               |
+| `progress:cancel`   | `{ id? }` (sin `id`: la activa)                                                                                                                                                                                   |
+| `textui:show`       | `{ key?, text }` (una sola a la vez; otro `show` reemplaza)                                                                                                                                                       |
+| `textui:hide`       | sin datos                                                                                                                                                                                                         |
+| `context:open`      | `{ id, title, items: { id, label, description?, icon?, disabled?, metadata?, items? }[] }`                                                                                                                        |
+| `context:close`     | sin datos                                                                                                                                                                                                         |
+| `input:open`        | `{ id, title, fields: { id, type: 'text' \| 'number' \| 'select' \| 'checkbox' \| 'date', label, description?, required?, placeholder?, default?, options?, min?, max?, step? }[], confirmLabel?, cancelLabel? }` |
+| `input:close`       | sin datos                                                                                                                                                                                                         |
+| `alert:open`        | `{ id, title, content?, confirmLabel?, cancelLabel?, cancel? = true, danger? }`                                                                                                                                   |
+| `alert:close`       | sin datos                                                                                                                                                                                                         |
+| `skillcheck:start`  | `{ id, rounds? = ['easy'], keys? = ['e'] }` (`rounds`: `'easy' \| 'medium' \| 'hard'`, una ronda por entrada)                                                                                                     |
+| `skillcheck:input`  | `{ key }` (tecla reenviada por Lua)                                                                                                                                                                               |
+| `skillcheck:cancel` | sin datos (falla la prueba)                                                                                                                                                                                       |
+
+Callbacks (UI -> Lua): `radial:select` `{ id, path }` (ids de la raíz al ítem), `radial:close` `{ id }`, `skillcheck:result` `{ id, success }` (una sola vez: `false` al primer fallo, tiempo agotado, Escape o cancelación), `input:result` `{ id, values | null }` (number: `number | null`, checkbox: `boolean`, select/date vacíos: `null`, text: `string`; `null` si se cancela), `alert:result` `{ id, result: 'confirm' | 'cancel' }`, `context:select` `{ id, path }` (ids de la raíz al ítem), `context:close` `{ id }`, `progress:end` `{ id, status: 'completed' | 'cancelled' }`. Una barra nueva cancela la anterior
+(Lua recibe `cancelled` con el id viejo).
+
+**Foco y teclado.** `SetNuiFocus` es del lado Lua. La barra y el skill check leen el teclado de la página: si la NUI no
+tiene foco, Lua reenvía la tecla con `progress:cancel` / `skillcheck:input`.
+
 ## Lado Lua mínimo
 
 `fxmanifest.lua`:

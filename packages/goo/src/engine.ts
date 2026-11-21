@@ -182,13 +182,13 @@ export class GooEngine {
     this.#changed()
   }
 
-  /** Se encoge hasta su centro y desaparece. */
-  remove(id: string): void {
+  /** Se encoge hasta su centro (o hasta `to`, p. ej. el centro del que nació) y desaparece. */
+  remove(id: string, to?: { x: number; y: number }): void {
     const b = this.#blobs.get(id)
     if (!b || b.removing) return
     b.removing = true
-    b.x.target += b.w.target / 2
-    b.y.target += b.h.target / 2
+    b.x.target = to ? to.x : b.x.target + b.w.target / 2
+    b.y.target = to ? to.y : b.y.target + b.h.target / 2
     b.w.target = 0
     b.h.target = 0
     this.#changed()
