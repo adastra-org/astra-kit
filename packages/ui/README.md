@@ -1,7 +1,7 @@
 # @adastrarp/ui
 
-Primitivas para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Peers: `react` ^19, `motion`, `tailwindcss` ^4,
-`@adastrarp/tokens`. Publica source (`.tsx`).
+Componentes y primitivas de UI para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Peers: `react` ^19, `motion`,
+`tailwindcss` ^4, `lucide-react`, `@adastrarp/tokens`, `@adastrarp/goo`, `@adastrarp/nui`. Publica source (`.tsx`).
 
 ```css
 @import 'tailwindcss';
@@ -32,3 +32,28 @@ Primitivas para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Pee
 - Texto sobre glass: solo `ink` e `ink-muted` (AA medido en el peor caso). Detalle: [DESIGN.md](../../DESIGN.md).
 
 Para el blur del mundo en menús modales: `useScreenBlur` de `@adastrarp/nui` (lo hace Lua).
+
+## Primitivas de UI
+
+Reemplazan lo que hoy da ox_lib, sin atarse a ox_lib ni a un framework: cada una es un componente + un mensaje tipado en
+[`@adastrarp/nui`](../nui/README.md#primitivas-contrato-de-mensajes). `<NuiPrimitives />` las conecta todas a la vez (se monta
+una vez en la raíz); también se pueden usar sueltas.
+
+```tsx
+import { NuiPrimitives } from '@adastrarp/ui'
+
+;<NuiPrimitives icons={{ car: <Car size={20} /> }} /> // Lua manda { action, data }; ver el contrato
+```
+
+`?page=nui` del lab (`bun run lab`) dispara cada una con el mismo mensaje que mandaría Lua.
+
+| Primitiva    | Componente / hook                               | Mensaje                         |
+| ------------ | ----------------------------------------------- | ------------------------------- |
+| Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss` |
+
+### Notificación
+
+Toast pill: success / info / warning / error, siempre con ícono (y el tipo en texto para lectores), título opcional, apilado.
+Nace del borde derecho como goo (`gentle`, con arco) y se pega a las vecinas cuando la pila se reacomoda. No toma foco ni
+mouse (`pointer-events-none`); `aria-live="polite"`, y los errores son `role="alert"`. `duration` en ms (default 4000,
+`0` = no se cierra sola); repetir el `id` reemplaza la notificación. Reduced motion: las pills saltan a su caja final.

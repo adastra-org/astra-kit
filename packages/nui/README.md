@@ -41,6 +41,29 @@ requestScreenBlur(true, 250) // imperativo; llama al callback 'adastra:screenblu
 Natives (firma verificada en los natives de GTA, `GRAPHICS`): `BOOL TRIGGER_SCREENBLUR_FADE_IN(float transitionTime)` y
 `BOOL TRIGGER_SCREENBLUR_FADE_OUT(float transitionTime)`; el tiempo es en milisegundos. Úsalo en menús modales, no en HUD.
 
+## Primitivas: contrato de mensajes
+
+Contrato tipado de las primitivas de UI (notificación, progreso, text UI, menú, input, alerta, skill check, radial), sin
+depender de ox_lib ni de ningún framework. Los componentes viven en [`@adastrarp/ui`](../ui/README.md#primitivas-de-ui).
+
+```ts
+emitPrimitive('notify:show', { type: 'success', title: 'Banco', description: 'Depósito acreditado' }) // Lua -> UI, tipado
+usePrimitiveEvent('notify:show', (d) => ...)                                                           // useNuiEvent tipado
+callbackPrimitive('alert:result', { id: 'borrar', result: 'confirm' })                                // UI -> Lua (fetchNui)
+```
+
+`NuiPrimitiveActions` (Lua -> UI, `{ action, data }`) y `NuiPrimitiveCallbacks` (UI -> Lua, `RegisterNUICallback`) son los
+mapas de tipos; `normalizeNotify` / `normalizeProgress` / `normalizeSkillCheck` aplican defaults y sanean lo que llega de Lua.
+
+```lua
+SendNUIMessage({ action = 'notify:show', data = { type = 'success', title = 'Banco', description = 'Depósito acreditado' } })
+```
+
+| Action           | Data                                                                                    |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `notify:show`    | `{ id?, type? = 'info', title?, description, duration? = 4000 }` (`duration = 0`: fija) |
+| `notify:dismiss` | `{ id }`                                                                                |
+
 ## Lado Lua mínimo
 
 `fxmanifest.lua`:
