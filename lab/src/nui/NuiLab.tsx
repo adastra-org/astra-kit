@@ -388,6 +388,41 @@ export function NuiLab() {
           </Button>
         </Group>
 
+        <Group label="Radial">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('radial:open', {
+                id: 'acciones',
+                items: [
+                  { id: 'saludar', label: 'Saludar' },
+                  { id: 'auto', label: 'Vehículo', icon: 'car' },
+                  { id: 'sentarse', label: 'Sentarse', disabled: true },
+                  {
+                    id: 'gestos',
+                    label: 'Gestos',
+                    items: [
+                      { id: 'ok', label: 'OK' },
+                      { id: 'stop', label: 'Stop' },
+                      { id: 'seguir', label: 'Seguir' },
+                    ],
+                  },
+                  { id: 'bailar', label: 'Bailar' },
+                  { id: 'llamar', label: 'Llamar' },
+                ],
+              })
+            }
+          >
+            Abrir
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => emitPrimitive('radial:close', undefined)}
+          >
+            Cerrar desde Lua
+          </Button>
+        </Group>
+
         <Surface level="sunken" className="p-3">
           <p className="mb-1 text-eyebrow">Eventos a Lua</p>
           <ul className="text-code break-all text-ink-muted">

@@ -56,6 +56,7 @@ import { NuiPrimitives } from '@adastrarp/ui'
 | Input        | `<InputDialog data onResult />`                 | `input:open`, `input:close`             |
 | Alerta       | `<Alert data onResult />`                       | `alert:open`, `alert:close`             |
 | Skill check  | `<SkillCheck data onResult />`                  | `skillcheck:start`, `:input`, `:cancel` |
+| Radial       | `<Radial data onSelect onClose icons />`        | `radial:open`, `radial:close`           |
 
 ### Notificación
 
@@ -102,3 +103,13 @@ tiempo -> `onResult(false)`. Una tecla fuera de `keys` se ignora. `onResult` sue
 veredicto) vive en `skillCheckLogic.ts` y es pura. El rAF solo corre mientras hay una ronda y escribe el ángulo por ref.
 `role="status"` anuncia "Ronda N de M" y la tecla. Reduced motion no cambia nada: el marcador es el juego. El host no usa
 blur ni toma el mouse; `skillcheck:input` reenvía la tecla cuando Lua tiene el foco.
+
+### Radial
+
+`<Radial data onSelect onClose icons />`: orbes goo en anillo (primero arriba, horario) alrededor de un centro. Cada orbe
+nace del centro y se estira a su lugar (`gentle`); el centro cierra, o vuelve dentro de un submenú. `role="menu"` con
+`menuitem`, tabindex móvil. → ↓ siguiente, ← ↑ anterior, Inicio Fin, Enter / Espacio eligen y abren submenús, Backspace /
+Escape vuelven y Escape en la raíz cierra. Los deshabilitados se saltan y quedan `aria-disabled`. El nombre del ítem activo
+se lee bajo el centro; sin ícono en `icons`, el orbe muestra la inicial. Pensado para 3 a 10 ítems. La geometría
+(`orbCenter`, `nextEnabled`) vive en `radialLayout.ts`. Reduced motion: los orbes saltan a su lugar. En el host usa
+`useScreenBlur` y avisa `radial:select` / `radial:close`.

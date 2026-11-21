@@ -9,6 +9,7 @@ import {
   type InputDialogData,
   type ProgressNormalized,
   type ProgressStatus,
+  type RadialData,
   type SkillCheckNormalized,
   type TextUiData,
 } from '@adastrarp/nui'
@@ -19,6 +20,7 @@ import { ContextMenu } from './ContextMenu'
 import { InputDialog } from './InputDialog'
 import { Notifications } from './Notifications'
 import { Progress } from './Progress'
+import { Radial } from './Radial'
 import type { IconMap } from './shared'
 import { SkillCheck } from './SkillCheck'
 import { TextUi } from './TextUi'
@@ -96,7 +98,16 @@ export function NuiPrimitives({ icons }: NuiPrimitivesProps = {}) {
     setAlertOpen(true)
   })
   usePrimitiveEvent('alert:close', () => setAlertOpen(false))
-  useScreenBlur(menuOpen || inputOpen || alertOpen)
+
+  // Radial: modal como el menú de contexto, con blur. Elegir o cerrar avisa a Lua.
+  const [radial, setRadial] = useState<RadialData | null>(null)
+  const [radialOpen, setRadialOpen] = useState(false)
+  usePrimitiveEvent('radial:open', (d) => {
+    setRadial(d)
+    setRadialOpen(true)
+  })
+  usePrimitiveEvent('radial:close', () => setRadialOpen(false))
+  useScreenBlur(menuOpen || inputOpen || alertOpen || radialOpen)
 
   // Skill check: sin blur ni modal (el jugador sigue viendo el mundo). Una prueba a la vez; una nueva falla la anterior.
   // `skillcheck:input` reenvía la tecla como `keydown` cuando la NUI no tiene el teclado.
@@ -163,6 +174,26 @@ export function NuiPrimitives({ icons }: NuiPrimitivesProps = {}) {
             onResult={(result) => {
               setAlertOpen(false)
               void callbackPrimitive('alert:result', { id: alert.id, result })
+            }}
+          />
+        )}
+      </Reveal>
+      <Reveal
+        open={radialOpen}
+        className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
+      >
+        {radial && (
+          <Radial
+            key={radial.id}
+            data={radial}
+            icons={icons}
+            onSelect={(path) => {
+              setRadialOpen(false)
+              void callbackPrimitive('radial:select', { id: radial.id, path })
+            }}
+            onClose={() => {
+              setRadialOpen(false)
+              void callbackPrimitive('radial:close', { id: radial.id })
             }}
           />
         )}
