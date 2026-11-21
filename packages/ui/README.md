@@ -1,7 +1,7 @@
 # @adastrarp/ui
 
-Primitivas para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Peers: `react` ^19, `motion`, `tailwindcss` ^4,
-`@adastrarp/tokens`. Publica source (`.tsx`).
+Componentes y primitivas de UI para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Peers: `react` ^19, `motion`,
+`tailwindcss` ^4, `lucide-react`, `@adastrarp/tokens`, `@adastrarp/goo`, `@adastrarp/nui`. Publica source (`.tsx`).
 
 ```css
 @import 'tailwindcss';
@@ -32,3 +32,84 @@ Primitivas para las NUI de Ad Astra, sobre los roles de `@adastrarp/tokens`. Pee
 - Texto sobre glass: solo `ink` e `ink-muted` (AA medido en el peor caso). Detalle: [DESIGN.md](../../DESIGN.md).
 
 Para el blur del mundo en menús modales: `useScreenBlur` de `@adastrarp/nui` (lo hace Lua).
+
+## Primitivas de UI
+
+Reemplazan lo que hoy da ox_lib, sin atarse a ox_lib ni a un framework: cada una es un componente + un mensaje tipado en
+[`@adastrarp/nui`](../nui/README.md#primitivas-contrato-de-mensajes). `<NuiPrimitives />` las conecta todas a la vez (se monta
+una vez en la raíz); también se pueden usar sueltas.
+
+```tsx
+import { NuiPrimitives } from '@adastrarp/ui'
+
+;<NuiPrimitives icons={{ car: <Car size={20} /> }} /> // Lua manda { action, data }; ver el contrato
+```
+
+`?page=nui` del lab (`bun run lab`) dispara cada una con el mismo mensaje que mandaría Lua.
+
+| Primitiva    | Componente / hook                               | Mensaje                                 |
+| ------------ | ----------------------------------------------- | --------------------------------------- |
+| Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss`         |
+| Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel`     |
+| Text UI      | `<TextUi data />`                               | `textui:show`, `textui:hide`            |
+| Menú         | `<ContextMenu data onSelect onClose />`         | `context:open`, `context:close`         |
+| Input        | `<InputDialog data onResult />`                 | `input:open`, `input:close`             |
+| Alerta       | `<Alert data onResult />`                       | `alert:open`, `alert:close`             |
+| Skill check  | `<SkillCheck data onResult />`                  | `skillcheck:start`, `:input`, `:cancel` |
+| Radial       | `<Radial data onSelect onClose icons />`        | `radial:open`, `radial:close`           |
+
+### Notificación
+
+Toast pill: success / info / warning / error, siempre con ícono (y el tipo en texto para lectores), título opcional, apilado.
+Nace del borde derecho como goo (`gentle`, con arco) y se pega a las vecinas cuando la pila se reacomoda. No toma foco ni
+mouse (`pointer-events-none`); `aria-live="polite"`, y los errores son `role="alert"`. `duration` en ms (default 4000,
+`0` = no se cierra sola); repetir el `id` reemplaza la notificación. Reduced motion: las pills saltan a su caja final.
+
+### Progreso
+
+`<Progress data onEnd />` (o `ProgressBar` / `ProgressCircle`). Barra pill con etiqueta y porcentaje tabular, o círculo con
+anillo. Dura `duration` ms y llama `onEnd('completed')` una sola vez; con `canCancel` la tecla (`cancelKey`, default X) o
+Escape llama `onEnd('cancelled')` y se muestra la tecla con `Kbd`. El avance se escribe por ref (sin re-render) y el rAF solo
+corre mientras hay una corrida. Es información, no decoración: reduced motion no lo frena. `role="progressbar"` con
+`aria-valuenow`.
+
+### Text UI
+
+`<TextUi data={{ key: 'E', text: 'Abrir' }} />`: pill con `Kbd` y texto. Sin `key`, solo texto. `role="status"`, sin foco ni
+mouse. En el host entra y sale con `Reveal` (180 ms, solo opacidad con reduced motion); un `textui:show` nuevo reemplaza el
+anterior.
+
+### Menú de contexto
+
+`<ContextMenu data onSelect onClose icons />`. `role="menu"` con ítems `menuitem` y tabindex móvil (una sola parada de Tab).
+↑ ↓ Inicio Fin mueven y dan la vuelta, Enter / Espacio eligen, → abre un submenú, ← / Backspace / Escape vuelven y Escape en
+la raíz cierra. Los deshabilitados se saltan y quedan `aria-disabled`. Una fila con descripción o metadata pasa de pill a
+`rounded-lg`. `onSelect` recibe el `path` de ids; en el host, elegir o cerrar avisa a Lua (`context:select` / `context:close`)
+y el menú usa `useScreenBlur`.
+
+### Input dialog y alerta
+
+Ambos usan `Dialog`: scrim (`bg-surface-sunken/60`), `aria-modal`, foco atrapado, Escape cancela y el foco vuelve al elemento
+previo. No cierran con click afuera. `InputDialog` (`role="dialog"`) valida `required` / `min` / `max` al enviar, muestra el
+error junto al campo y enfoca el primero con error; los opcionales se marcan "(opcional)". `Alert` (`role="alertdialog"`)
+enfoca "Cancelar" cuando es `danger`; con `cancel: false` es un aviso de un botón. En el host ambos usan `useScreenBlur`.
+
+### Skill check
+
+`<SkillCheck data onResult />`: anillo con una zona (arco `accent`) y un marcador que da una vuelta; hay que pulsar la tecla
+indicada (`Kbd` al centro) con el marcador dentro. Una ronda por dificultad: easy 64° / 2,2 s, medium 44° / 1,7 s, hard
+28° / 1,3 s. Acierto -> pasa a la siguiente ronda; la tecla correcta fuera de zona, otra tecla de `keys`, Escape o agotar el
+tiempo -> `onResult(false)`. Una tecla fuera de `keys` se ignora. `onResult` suena una sola vez. La lógica (zona, ángulo,
+veredicto) vive en `skillCheckLogic.ts` y es pura. El rAF solo corre mientras hay una ronda y escribe el ángulo por ref.
+`role="status"` anuncia "Ronda N de M" y la tecla. Reduced motion no cambia nada: el marcador es el juego. El host no usa
+blur ni toma el mouse; `skillcheck:input` reenvía la tecla cuando Lua tiene el foco.
+
+### Radial
+
+`<Radial data onSelect onClose icons />`: orbes goo en anillo (primero arriba, horario) alrededor de un centro. Cada orbe
+nace del centro y se estira a su lugar (`gentle`); el centro cierra, o vuelve dentro de un submenú. `role="menu"` con
+`menuitem`, tabindex móvil. → ↓ siguiente, ← ↑ anterior, Inicio Fin, Enter / Espacio eligen y abren submenús, Backspace /
+Escape vuelven y Escape en la raíz cierra. Los deshabilitados se saltan y quedan `aria-disabled`. El nombre del ítem activo
+se lee bajo el centro; sin ícono en `icons`, el orbe muestra la inicial. Pensado para 3 a 10 ítems. La geometría
+(`orbCenter`, `nextEnabled`) vive en `radialLayout.ts`. Reduced motion: los orbes saltan a su lugar. En el host usa
+`useScreenBlur` y avisa `radial:select` / `radial:close`.
