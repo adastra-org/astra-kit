@@ -350,6 +350,44 @@ export function NuiLab() {
           </Button>
         </Group>
 
+        <Group label="Skill check">
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('skillcheck:start', {
+                id: 'facil',
+                rounds: ['easy'],
+              })
+            }
+          >
+            Fácil
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              emitPrimitive('skillcheck:start', {
+                id: 'triple',
+                rounds: ['easy', 'medium', 'hard'],
+                keys: ['e', 'f'],
+              })
+            }
+          >
+            3 rondas
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => emitPrimitive('skillcheck:input', { key: 'e' })}
+          >
+            Enviar E desde Lua
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => emitPrimitive('skillcheck:cancel', undefined)}
+          >
+            Cancelar desde Lua
+          </Button>
+        </Group>
+
         <Surface level="sunken" className="p-3">
           <p className="mb-1 text-eyebrow">Eventos a Lua</p>
           <ul className="text-code break-all text-ink-muted">

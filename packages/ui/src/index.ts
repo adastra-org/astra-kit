@@ -18,6 +18,7 @@ export { ContextMenu, type ContextMenuProps } from './primitives/ContextMenu'
 export { Alert, type AlertProps } from './primitives/Alert'
 export { Dialog } from './primitives/Dialog'
 export { InputDialog, type InputDialogProps } from './primitives/InputDialog'
+export { SkillCheck, type SkillCheckProps } from './primitives/SkillCheck'
 export { TextUi } from './primitives/TextUi'
 export { Notifications } from './primitives/Notifications'
 export {

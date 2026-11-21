@@ -47,14 +47,15 @@ import { NuiPrimitives } from '@adastrarp/ui'
 
 `?page=nui` del lab (`bun run lab`) dispara cada una con el mismo mensaje que mandaría Lua.
 
-| Primitiva    | Componente / hook                               | Mensaje                             |
-| ------------ | ----------------------------------------------- | ----------------------------------- |
-| Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss`     |
-| Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel` |
-| Text UI      | `<TextUi data />`                               | `textui:show`, `textui:hide`        |
-| Menú         | `<ContextMenu data onSelect onClose />`         | `context:open`, `context:close`     |
-| Input        | `<InputDialog data onResult />`                 | `input:open`, `input:close`         |
-| Alerta       | `<Alert data onResult />`                       | `alert:open`, `alert:close`         |
+| Primitiva    | Componente / hook                               | Mensaje                                 |
+| ------------ | ----------------------------------------------- | --------------------------------------- |
+| Notificación | `<Notifications items />`, `useNotifications()` | `notify:show`, `notify:dismiss`         |
+| Progreso     | `<Progress data onEnd />`                       | `progress:start`, `progress:cancel`     |
+| Text UI      | `<TextUi data />`                               | `textui:show`, `textui:hide`            |
+| Menú         | `<ContextMenu data onSelect onClose />`         | `context:open`, `context:close`         |
+| Input        | `<InputDialog data onResult />`                 | `input:open`, `input:close`             |
+| Alerta       | `<Alert data onResult />`                       | `alert:open`, `alert:close`             |
+| Skill check  | `<SkillCheck data onResult />`                  | `skillcheck:start`, `:input`, `:cancel` |
 
 ### Notificación
 
@@ -91,3 +92,13 @@ Ambos usan `Dialog`: scrim (`bg-surface-sunken/60`), `aria-modal`, foco atrapado
 previo. No cierran con click afuera. `InputDialog` (`role="dialog"`) valida `required` / `min` / `max` al enviar, muestra el
 error junto al campo y enfoca el primero con error; los opcionales se marcan "(opcional)". `Alert` (`role="alertdialog"`)
 enfoca "Cancelar" cuando es `danger`; con `cancel: false` es un aviso de un botón. En el host ambos usan `useScreenBlur`.
+
+### Skill check
+
+`<SkillCheck data onResult />`: anillo con una zona (arco `accent`) y un marcador que da una vuelta; hay que pulsar la tecla
+indicada (`Kbd` al centro) con el marcador dentro. Una ronda por dificultad: easy 64° / 2,2 s, medium 44° / 1,7 s, hard
+28° / 1,3 s. Acierto -> pasa a la siguiente ronda; la tecla correcta fuera de zona, otra tecla de `keys`, Escape o agotar el
+tiempo -> `onResult(false)`. Una tecla fuera de `keys` se ignora. `onResult` suena una sola vez. La lógica (zona, ángulo,
+veredicto) vive en `skillCheckLogic.ts` y es pura. El rAF solo corre mientras hay una ronda y escribe el ángulo por ref.
+`role="status"` anuncia "Ronda N de M" y la tecla. Reduced motion no cambia nada: el marcador es el juego. El host no usa
+blur ni toma el mouse; `skillcheck:input` reenvía la tecla cuando Lua tiene el foco.

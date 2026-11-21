@@ -1,6 +1,7 @@
 import {
   callbackPrimitive,
   normalizeProgress,
+  normalizeSkillCheck,
   usePrimitiveEvent,
   useScreenBlur,
   type AlertData,
@@ -8,6 +9,7 @@ import {
   type InputDialogData,
   type ProgressNormalized,
   type ProgressStatus,
+  type SkillCheckNormalized,
   type TextUiData,
 } from '@adastrarp/nui'
 import { useCallback, useRef, useState } from 'react'
@@ -18,6 +20,7 @@ import { InputDialog } from './InputDialog'
 import { Notifications } from './Notifications'
 import { Progress } from './Progress'
 import type { IconMap } from './shared'
+import { SkillCheck } from './SkillCheck'
 import { TextUi } from './TextUi'
 import { useNotifications } from './useNotifications'
 
@@ -95,9 +98,51 @@ export function NuiPrimitives({ icons }: NuiPrimitivesProps = {}) {
   usePrimitiveEvent('alert:close', () => setAlertOpen(false))
   useScreenBlur(menuOpen || inputOpen || alertOpen)
 
+  // Skill check: sin blur ni modal (el jugador sigue viendo el mundo). Una prueba a la vez; una nueva falla la anterior.
+  // `skillcheck:input` reenvía la tecla como `keydown` cuando la NUI no tiene el teclado.
+  const [skill, setSkill] = useState<SkillCheckNormalized | null>(null)
+  const skillRef = useRef<SkillCheckNormalized | null>(null)
+  const endSkill = useCallback((id: string, success: boolean) => {
+    if (skillRef.current?.id !== id) return
+    skillRef.current = null
+    setSkill(null)
+    void callbackPrimitive('skillcheck:result', { id, success })
+  }, [])
+  usePrimitiveEvent('skillcheck:start', (d) => {
+    const prev = skillRef.current
+    if (prev)
+      void callbackPrimitive('skillcheck:result', {
+        id: prev.id,
+        success: false,
+      })
+    const next = normalizeSkillCheck(d)
+    skillRef.current = next
+    setSkill(next)
+  })
+  usePrimitiveEvent('skillcheck:input', (d) => {
+    if (skillRef.current)
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: d.key }))
+  })
+  usePrimitiveEvent('skillcheck:cancel', () => {
+    const cur = skillRef.current
+    if (cur) endSkill(cur.id, false)
+  })
+
   return (
     <>
       <Notifications items={toasts.items} />
+      {skill && (
+        <div
+          data-adastra="SkillCheckHost"
+          className="pointer-events-none fixed top-1/2 left-1/2 z-40 -translate-x-1/2 -translate-y-1/2"
+        >
+          <SkillCheck
+            key={skill.id}
+            data={skill}
+            onResult={(ok) => endSkill(skill.id, ok)}
+          />
+        </div>
+      )}
       <Reveal open={inputOpen} className="fixed inset-0 z-50">
         {input && (
           <InputDialog
